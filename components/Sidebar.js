@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 import {
   ChevronDownIcon,
   Bars3Icon,
@@ -21,6 +22,7 @@ import {
   ClipboardDocumentCheckIcon,
   DocumentChartBarIcon,
   ListBulletIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -146,6 +148,7 @@ const MenuItem = ({ item, isNested = false, isCollapsed = false }) => {
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const { data: session } = useSession()
 
   const navigation = [
     {
@@ -234,7 +237,7 @@ export default function Sidebar() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="flex items-center justify-between h-30 bg-black/50 px-4 rounded-2xl"
+        className="flex flex-col items-center justify-between h-auto bg-black/50 px-4 rounded-2xl"
       >
         <AnimatePresence>
           {!isCollapsed ? (
@@ -255,44 +258,55 @@ export default function Sidebar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-white font-bold"
+              className="text-white font-bold py-4"
             >
               <img
                 src="/images/logorestaurant.jpg"
                 alt="Restaurant Logo"
-                className="h-8 w-8 object-cover rounded-full"
+                className="h-16 w-auto object-contain"
               />
             </motion.span>
           )}
         </AnimatePresence>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+
+        {/* User Profile Section */}
+        {session?.user && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={`w-full p-4 mb-4 bg-gray-800/50 rounded-lg ${
+              isCollapsed ? 'text-center' : ''
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <UserCircleIcon className="h-8 w-8 text-gray-400" />
+              {!isCollapsed && (
+                <div className="flex flex-col">
+                  <span className="text-white font-medium">
+                    {session.user.name || 'User'}
+                  </span>
+                  <span className="text-gray-400 text-sm">
+                    {session.user.email}
+                  </span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
+          className="absolute right-2 top-2 p-2 rounded-full hover:bg-gray-700/50"
         >
-          <Bars3Icon className="h-6 w-6" />
-        </motion.button>
+          <Bars3Icon className="h-6 w-6 text-white" />
+        </button>
       </motion.div>
-      <nav className={`mt-5 ${isCollapsed ? 'px-1' : 'px-2'}`}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="space-y-1"
-        >
-          {navigation.map((item, index) => (
-            <motion.div
-              key={item.name}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * (index + 1) }}
-            >
-              <MenuItem item={item} isCollapsed={isCollapsed} />
-            </motion.div>
-          ))}
-        </motion.div>
-      </nav>
+
+      <div className="px-2 py-4 space-y-1">
+        {navigation.map((item) => (
+          <MenuItem key={item.name} item={item} isCollapsed={isCollapsed} />
+        ))}
+      </div>
     </motion.div>
   )
 }

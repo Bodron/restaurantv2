@@ -2,7 +2,9 @@ import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import dbConnect from '../../../lib/db'
 import User from '../../../lib/models/User'
+import Restaurant from '../../../lib/models/Restaurant'
 import bcrypt from 'bcryptjs'
+import mongoose from 'mongoose'
 
 export const authOptions = {
   providers: [
@@ -15,6 +17,12 @@ export const authOptions = {
       async authorize(credentials) {
         try {
           await dbConnect()
+
+          // Ensure Restaurant model is registered
+          if (!mongoose.models.Restaurant) {
+            mongoose.model('Restaurant', Restaurant.schema)
+          }
+
           const user = await User.findOne({
             email: credentials.email,
           }).populate('restaurantId')
@@ -41,6 +49,7 @@ export const authOptions = {
               : null,
           }
         } catch (error) {
+          console.error('Auth error:', error)
           throw new Error(error.message)
         }
       },
