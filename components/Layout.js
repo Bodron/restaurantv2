@@ -7,7 +7,7 @@ export default function Layout({ children }) {
   const isAuthPage = router.pathname.startsWith('/auth/')
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="relative ">
       {/* Video Background */}
       <video
         autoPlay
@@ -15,7 +15,7 @@ export default function Layout({ children }) {
         muted
         playsInline
         preload="auto"
-        className="fixed inset-0 w-full h-full object-cover -z-10"
+        className="fixed inset-0 w-full h-screen object-cover -z-10 overflow-hidden"
       >
         <source src="/images/bg-video.mp4" type="video/mp4" />
       </video>
@@ -28,7 +28,9 @@ export default function Layout({ children }) {
 
       {/* Main Content */}
       <main className={`relative z-10 ${!isAuthPage ? 'ml-64' : ''}`}>
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">{children}</div>
+        <div className="  flex items-center justify-center  py-6 sm:px-6 lg:px-8">
+          {children}
+        </div>
       </main>
     </div>
   )
