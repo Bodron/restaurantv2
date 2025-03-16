@@ -18,32 +18,17 @@ export default async function handler(req, res) {
       try {
         const menuItems = await MenuItem.find({
           restaurant: session.user.restaurantId,
-        })
+        }).populate('menuId')
         res.status(200).json(menuItems)
       } catch (error) {
-        res
-          .status(500)
-          .json({ message: 'Error fetching menu items', error: error.message })
+        console.error('Error in GET /api/menu-items:', error)
+        res.status(500).json({ message: 'Error fetching menu items' })
       }
       break
 
     case 'POST':
       try {
-        const {
-          name,
-          description,
-          price,
-          category,
-          menuId,
-          categoryId,
-          image,
-          preparationTime,
-          allergens,
-          nutritionalInfo,
-          isSpicy,
-          isVegetarian,
-          isVegan,
-        } = req.body
+        const { name, description, price, menuId, categoryId } = req.body
 
         if (!name || !price || !menuId || !categoryId) {
           return res.status(400).json({
@@ -51,50 +36,42 @@ export default async function handler(req, res) {
           })
         }
 
-        // Create menu item
+        // Verify that the menu exists and belongs to the restaurant
+        const menu = await Menu.findOne({
+          _id: menuId,
+          'categories._id': categoryId,
+        })
+
+        if (!menu) {
+          return res.status(404).json({ message: 'Menu or category not found' })
+        }
+
+        // Check if menu item with same name exists in this restaurant
+        const existingItem = await MenuItem.findOne({
+          restaurant: session.user.restaurantId,
+          name: name,
+        })
+
+        if (existingItem) {
+          return res
+            .status(400)
+            .json({ message: 'Menu item with this name already exists' })
+        }
+
         const menuItem = new MenuItem({
           name,
           description,
           price,
-          category,
+          menuId,
+          categoryId,
           restaurant: session.user.restaurantId,
-          image,
-          preparationTime,
-          allergens,
-          nutritionalInfo,
-          isSpicy,
-          isVegetarian,
-          isVegan,
         })
 
         await menuItem.save()
-
-        // Add item to menu category
-        await Menu.findOneAndUpdate(
-          {
-            _id: menuId,
-            'categories._id': categoryId,
-            restaurant: session.user.restaurantId,
-          },
-          {
-            $push: {
-              'categories.$.items': menuItem._id,
-            },
-          }
-        )
-
         res.status(201).json(menuItem)
       } catch (error) {
-        if (error.code === 11000) {
-          return res.status(400).json({
-            message:
-              'Menu item with this name already exists in this restaurant',
-          })
-        }
-        res.status(500).json({
-          message: 'Error creating menu item',
-          error: error.message,
-        })
+        console.error('Error in POST /api/menu-items:', error)
+        res.status(500).json({ message: 'Error creating menu item' })
       }
       break
 

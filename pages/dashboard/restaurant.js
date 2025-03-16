@@ -510,6 +510,59 @@ export default function RestaurantDashboard() {
             <form onSubmit={handleCreateMenuItem} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
+                  Menu
+                  <select
+                    value={newMenuItem.menuId}
+                    onChange={(e) => {
+                      const selectedMenu = menus.find(
+                        (m) => m._id === e.target.value
+                      )
+                      setNewMenuItem({
+                        ...newMenuItem,
+                        menuId: e.target.value,
+                        categoryId: '', // Reset category when menu changes
+                      })
+                    }}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    required
+                  >
+                    <option value="">Select a menu</option>
+                    {menus.map((menu) => (
+                      <option key={menu._id} value={menu._id}>
+                        {menu.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Category
+                  <select
+                    value={newMenuItem.categoryId}
+                    onChange={(e) =>
+                      setNewMenuItem({
+                        ...newMenuItem,
+                        categoryId: e.target.value,
+                      })
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    required
+                    disabled={!newMenuItem.menuId}
+                  >
+                    <option value="">Select a category</option>
+                    {menus
+                      .find((menu) => menu._id === newMenuItem.menuId)
+                      ?.categories?.map((category) => (
+                        <option key={category._id} value={category._id}>
+                          {category.name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
                   Name
                   <input
                     type="text"
@@ -545,31 +598,14 @@ export default function RestaurantDashboard() {
                     step="0.01"
                     value={newMenuItem.price}
                     onChange={(e) =>
-                      setNewMenuItem({ ...newMenuItem, price: e.target.value })
+                      setNewMenuItem({
+                        ...newMenuItem,
+                        price: parseFloat(e.target.value),
+                      })
                     }
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     required
                   />
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Menu
-                  <select
-                    value={newMenuItem.menuId}
-                    onChange={(e) =>
-                      setNewMenuItem({ ...newMenuItem, menuId: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    required
-                  >
-                    <option value="">Select a menu</option>
-                    {menus.map((menu) => (
-                      <option key={menu._id} value={menu._id}>
-                        {menu.name}
-                      </option>
-                    ))}
-                  </select>
                 </label>
               </div>
               <button
