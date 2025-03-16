@@ -155,7 +155,7 @@ export default function CustomerMenu() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold mb-2 text-black">
             {table?.restaurant?.name}
           </h1>
           <p className="text-gray-600">Table {table?.tableNumber}</p>
@@ -171,10 +171,10 @@ export default function CustomerMenu() {
           {/* Menu Items */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-semibold mb-6">Menu</h2>
+              <h2 className="text-2xl font-semibold mb-6 text-black">Menu</h2>
               {menu?.categories?.map((category) => (
                 <div key={category._id} className="mb-8">
-                  <h3 className="text-xl font-semibold mb-4">
+                  <h3 className="text-xl font-semibold mb-4 text-black">
                     {category.name}
                   </h3>
                   <div className="space-y-4">
@@ -186,7 +186,9 @@ export default function CustomerMenu() {
                           className="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
                         >
                           <div>
-                            <h4 className="font-medium">{item.name}</h4>
+                            <h4 className="font-medium text-black">
+                              {item.name}
+                            </h4>
                             {item.description && (
                               <p className="text-gray-600 text-sm mt-1">
                                 {item.description}
@@ -213,7 +215,9 @@ export default function CustomerMenu() {
           {/* Cart */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-8">
-              <h2 className="text-2xl font-semibold mb-6">Your Order</h2>
+              <h2 className="text-2xl font-semibold mb-6 text-black">
+                Your Order
+              </h2>
               {cart.length === 0 ? (
                 <p className="text-gray-600">Your cart is empty</p>
               ) : (
@@ -225,7 +229,9 @@ export default function CustomerMenu() {
                         className="flex flex-col p-4 bg-gray-50 rounded-lg"
                       >
                         <div className="flex justify-between items-center mb-2">
-                          <span className="font-medium">{item.name}</span>
+                          <span className="font-medium text-black">
+                            {item.name}
+                          </span>
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => removeFromCart(item.menuItemId)}
@@ -233,12 +239,12 @@ export default function CustomerMenu() {
                             >
                               -
                             </button>
-                            <span>{item.quantity}</span>
+                            <span className="text-black">{item.quantity}</span>
                             <button
                               onClick={() =>
                                 addToCart({ _id: item.menuItemId, ...item })
                               }
-                              className="text-gray-600 hover:text-gray-800"
+                              className=" hover:text-gray-800 text-black"
                             >
                               +
                             </button>
@@ -253,7 +259,7 @@ export default function CustomerMenu() {
                           }
                           className="w-full p-2 text-sm border rounded"
                         />
-                        <div className="text-right mt-2">
+                        <div className="text-right mt-2 text-black">
                           ${(item.price * item.quantity).toFixed(2)}
                         </div>
                       </div>
@@ -270,8 +276,10 @@ export default function CustomerMenu() {
                   </div>
                   <div className="border-t pt-4 mb-6">
                     <div className="flex justify-between items-center text-lg font-semibold">
-                      <span>Total:</span>
-                      <span>${calculateTotal().toFixed(2)}</span>
+                      <span className="text-black">Total:</span>
+                      <span className="text-black">
+                        ${calculateTotal().toFixed(2)}
+                      </span>
                     </div>
                   </div>
                   <button

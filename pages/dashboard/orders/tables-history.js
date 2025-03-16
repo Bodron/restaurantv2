@@ -94,7 +94,7 @@ export default function TablesHistoryPage() {
       <div className="flex items-center justify-center h-full">Loading...</div>
     )
   }
-
+  console.log(tables)
   return (
     <div className="space-y-6 p-6">
       {error && (
@@ -115,7 +115,7 @@ export default function TablesHistoryPage() {
             } bg-white rounded-lg shadow p-6`}
           >
             <h3 className="text-lg font-medium text-gray-900">
-              Table {table.number}
+              Table {table.tableNumber}
             </h3>
             <p className="text-sm text-gray-700 mt-1">
               Capacity: {table.capacity} persons

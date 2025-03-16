@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import {
   ChevronDownIcon,
   Bars3Icon,
@@ -23,6 +23,7 @@ import {
   DocumentChartBarIcon,
   ListBulletIcon,
   UserCircleIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -149,6 +150,10 @@ const MenuItem = ({ item, isNested = false, isCollapsed = false }) => {
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { data: session } = useSession()
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: true, callbackUrl: '/auth/signin' })
+  }
 
   const navigation = [
     {
@@ -306,6 +311,28 @@ export default function Sidebar() {
         {navigation.map((item) => (
           <MenuItem key={item.name} item={item} isCollapsed={isCollapsed} />
         ))}
+      </div>
+
+      {/* Sign Out Button */}
+      <div className="px-2 py-4 mt-auto">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleSignOut}
+          className={`w-full flex items-center p-2 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-md ${
+            isCollapsed ? 'justify-center' : 'justify-start'
+          }`}
+        >
+          <ArrowRightOnRectangleIcon
+            className={`h-5 w-5 ${!isCollapsed && 'mr-3'}`}
+          />
+          {!isCollapsed && <span>Sign Out</span>}
+          {isCollapsed && (
+            <span className="absolute left-full ml-2 w-max opacity-0 group-hover:opacity-100 bg-gray-900 text-white text-sm px-2 py-1 rounded transition-opacity duration-300 z-50">
+              Sign Out
+            </span>
+          )}
+        </motion.button>
       </div>
     </motion.div>
   )
