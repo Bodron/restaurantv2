@@ -176,9 +176,14 @@ export default function Sidebar() {
       icon: ShoppingBagIcon,
       children: [
         {
-          name: 'Active Orders',
+          name: 'Live Orders',
           href: '/dashboard/orders-management',
           icon: ClipboardDocumentCheckIcon,
+        },
+        {
+          name: 'All Tables Orders',
+          href: '/dashboard/orders/tables-history',
+          icon: TableCellsIcon,
         },
         {
           name: 'Order History',
@@ -229,7 +234,7 @@ export default function Sidebar() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="flex items-center justify-between h-30 bg-black/50 px-4"
+        className="flex items-center justify-between h-30 bg-black/50 px-4 rounded-2xl"
       >
         <AnimatePresence>
           {!isCollapsed ? (

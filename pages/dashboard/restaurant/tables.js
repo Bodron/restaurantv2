@@ -86,7 +86,7 @@ export default function TablesPage() {
       )}
 
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">Add New Table</h2>
+        <h2 className="text-lg font-medium mb-4 text-black">Add New Table</h2>
         <form onSubmit={handleCreateTable} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -129,13 +129,13 @@ export default function TablesPage() {
       </div>
 
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">Tables</h2>
+        <h2 className="text-lg font-medium mb-4 text-black">Tables</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {tables?.map((table) => (
             <div key={table._id} className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-medium">
+                  <h3 className="text-lg font-medium text-black">
                     Table {table.tableNumber}
                   </h3>
                   <p className="text-sm text-gray-500">

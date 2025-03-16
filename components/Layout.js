@@ -24,7 +24,6 @@ export default function Layout({ children }) {
 
       {/* Main Content */}
       <main className="relative z-10 ml-64">
-        <Navbar />
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">{children}</div>
       </main>
     </div>

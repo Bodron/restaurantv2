@@ -91,7 +91,7 @@ export default function MenuItemsPage() {
       )}
 
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">Add Menu Item</h2>
+        <h2 className="text-lg font-medium mb-4 text-black">Add Menu Item</h2>
         <form onSubmit={handleCreateMenuItem} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -200,11 +200,11 @@ export default function MenuItemsPage() {
       </div>
 
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">Menu Items</h2>
+        <h2 className="text-lg font-medium mb-4 text-black">Menu Items</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {menuItems.map((item) => (
             <div key={item._id} className="border rounded-lg p-4">
-              <h3 className="text-lg font-medium">{item.name}</h3>
+              <h3 className="text-lg font-medium text-black">{item.name}</h3>
               <p className="text-sm text-gray-500">{item.description}</p>
               <p className="text-lg font-semibold text-indigo-600 mt-2">
                 ${item.price.toFixed(2)}
