@@ -1,6 +1,8 @@
 import dbConnect from '../../../lib/db'
 import Order from '../../../lib/models/Order'
 import Table from '../../../lib/models/Table'
+import TableSession from '../../../lib/models/TableSession'
+import MenuItem from '../../../lib/models/MenuItem'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 
@@ -20,6 +22,7 @@ export default async function handler(req, res) {
         })
           .populate('table')
           .populate('items.menuItem')
+          .populate('tableSession')
           .sort({ createdAt: -1 })
         res.status(200).json(orders)
       } catch (error) {
@@ -43,23 +46,65 @@ export default async function handler(req, res) {
           return res.status(404).json({ message: 'Table not found' })
         }
 
+        // Get or create active table session
+        let tableSession = await TableSession.findOne({
+          table: tableId,
+          status: 'active',
+        })
+
+        if (!tableSession) {
+          tableSession = await TableSession.create({
+            table: tableId,
+            restaurant: table.restaurant,
+            status: 'active',
+          })
+        }
+
+        // Get menu items to calculate total
+        const menuItemIds = items.map((item) => item.menuItemId)
+        const menuItems = await MenuItem.find({ _id: { $in: menuItemIds } })
+        const menuItemsMap = menuItems.reduce((map, item) => {
+          map[item._id.toString()] = item
+          return map
+        }, {})
+
+        // Calculate total and prepare items with prices
+        const orderItems = items.map((item) => {
+          const menuItem = menuItemsMap[item.menuItemId]
+          return {
+            menuItem: item.menuItemId,
+            quantity: item.quantity,
+            notes: item.notes,
+            price: menuItem.price,
+          }
+        })
+
+        const total = orderItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        )
+
         // Create order
         const order = await Order.create({
           table: tableId,
           restaurant: table.restaurant,
-          items: items.map((item) => ({
-            menuItem: item.menuItemId,
-            quantity: item.quantity,
-            notes: item.notes,
-          })),
+          tableSession: tableSession._id,
+          items: orderItems,
           status: 'pending',
           notes,
+          total,
         })
+
+        // Update table session
+        tableSession.orders.push(order._id)
+        tableSession.totalAmount += total
+        await tableSession.save()
 
         // Populate the response with table and menu item details
         const populatedOrder = await Order.findById(order._id)
           .populate('table')
           .populate('items.menuItem')
+          .populate('tableSession')
 
         res.status(201).json(populatedOrder)
       } catch (error) {
