@@ -28,7 +28,7 @@ export default function Layout({ children }) {
 
       {/* Main Content */}
       <main className={`relative z-10 ${!isAuthPage ? 'ml-64' : ''}`}>
-        <div className="  flex items-center justify-center  py-6 sm:px-6 lg:px-8">
+        <div className=" h-full flex items-center justify-center  py-6 sm:px-6 lg:px-8">
           {children}
         </div>
       </main>
