@@ -20,8 +20,8 @@ export default function DashboardLayout({ children }) {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow">
+    <div>
+      <nav className="bg-white/80 backdrop-blur-sm shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
@@ -63,7 +63,11 @@ export default function DashboardLayout({ children }) {
           </div>
         </div>
       </nav>
-      <main>{children}</main>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-lg p-6">
+          {children}
+        </div>
+      </main>
     </div>
   )
 }
