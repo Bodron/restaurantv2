@@ -3,6 +3,20 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 
+// Helper function to generate consistent background colors based on text
+const getColorForText = (text) => {
+  // Generate a hash code from text
+  let hash = 0
+  for (let i = 0; i < text.length; i++) {
+    hash = text.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  // Generate consistent colors in the gray to indigo/purple range for a cohesive dark theme
+  const hue = ((hash % 60) + 210) % 360 // Range between 210-270 (blues/purples)
+  const saturation = 40 + (hash % 30) // 40-70%
+  const lightness = 20 + (hash % 15) // 20-35%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+}
+
 export default function OrdersManagementPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -108,6 +122,30 @@ export default function OrdersManagementPage() {
 
   return (
     <div className="space-y-6 py-[5%] max-w-[80%] w-full">
+      <Head>
+        <title>Orders Management</title>
+        <style jsx global>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .item-image-container {
+            position: relative;
+            overflow: hidden;
+          }
+          .fallback-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+          }
+        `}</style>
+      </Head>
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
@@ -157,10 +195,7 @@ export default function OrdersManagementPage() {
 
             <div className="space-y-10">
               {session.orders.map((order) => (
-                <div
-                  key={order._id}
-                  className=" bg-stone-800 rounded-lg py-5 px-5 space-y-5"
-                >
+                <div key={order._id} className="rounded-lg py-5 px-5 space-y-5">
                   <div className="flex justify-between items-start gap-10">
                     <div>
                       <h4 className="text-md font-medium text-white">
@@ -171,17 +206,6 @@ export default function OrdersManagementPage() {
                       </p>
                     </div>
                     <div className="flex items-center space-x-4">
-                      {/* <span
-                        className={`px-2 py-1 text-xs font-semibold rounded ${
-                          order.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : order.status === 'preparing'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}
-                      >
-                        {order.status.toUpperCase()}
-                      </span> */}
                       <select
                         value={order.status}
                         onChange={(e) =>
@@ -193,10 +217,17 @@ export default function OrdersManagementPage() {
                             : order.status === 'preparing'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-blue-100 text-blue-800'
-                        }`}                      >
-                        <option className='uppercase' value="pending">Pending</option>
-                        <option  className='uppercase' value="preparing">Preparing</option>
-                        <option  className='uppercase' value="completed">Completed</option>
+                        }`}
+                      >
+                        <option className="uppercase" value="pending">
+                          Pending
+                        </option>
+                        <option className="uppercase" value="preparing">
+                          Preparing
+                        </option>
+                        <option className="uppercase" value="completed">
+                          Completed
+                        </option>
                       </select>
                     </div>
                   </div>
@@ -205,28 +236,78 @@ export default function OrdersManagementPage() {
                     {order.items.map((item, index) => (
                       <div
                         key={index}
-                        className="flex justify-between items-center text-sm"
+                        className="flex items-center text-sm py-2"
                       >
-                        <span className="text-white">
-                          {item.quantity}x {item.menuItem?.name}
-                        </span>
-                        <span className="text-white">
-                          ${(item.price * item.quantity).toFixed(2)}
-                        </span>
+                        {/* Item image */}
+                        <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0 mr-3 item-image-container">
+                          {item.menuItem?.image ? (
+                            <img
+                              src={item.menuItem.image}
+                              alt={item.menuItem?.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none'
+                                // Add a fallback div with menu item's first letter when image fails
+                                const parent = e.target.parentNode
+                                if (!parent.querySelector('.fallback-image')) {
+                                  const fallback = document.createElement('div')
+                                  const itemName = item.menuItem?.name || 'Item'
+                                  const bgColor = getColorForText(itemName)
+                                  fallback.className =
+                                    'fallback-image absolute inset-0 text-white text-lg font-bold'
+                                  fallback.style.backgroundColor = bgColor
+                                  fallback.textContent = itemName
+                                    .charAt(0)
+                                    .toUpperCase()
+                                  parent.appendChild(fallback)
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div
+                              className="w-full h-full flex items-center justify-center text-white text-lg font-bold"
+                              style={{
+                                backgroundColor: getColorForText(
+                                  item.menuItem?.name || 'Item'
+                                ),
+                              }}
+                            >
+                              {(item.menuItem?.name || 'I')
+                                .charAt(0)
+                                .toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Item details */}
+                        <div className="flex-1 flex justify-between items-center">
+                          <span className="text-white">
+                            {item.quantity}x{' '}
+                            {item.menuItem?.name || 'Unknown Item'}
+                            {item.notes && (
+                              <span className="text-xs text-gray-400 block mt-1">
+                                Note: {item.notes}
+                              </span>
+                            )}
+                          </span>
+                          <span className="text-white">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
 
                   {order.notes && (
-                    <div className="border-t border-gray-200 pt-4">
+                    <div className="border-t border-gray-800 pt-4">
                       <h4 className="text-sm font-medium text-white mb-2">
-                        Notes:
+                        Order Notes:
                       </h4>
-                      <p className="text-sm text-gray-700">{order.notes}</p>
+                      <p className="text-sm text-gray-400">{order.notes}</p>
                     </div>
                   )}
 
-                  <div className="border-t border-gray-200 pt-4">
+                  <div className="border-t border-gray-800 pt-4">
                     <div className="flex justify-between items-center font-medium">
                       <span className="text-white">Order Total</span>
                       <span className="text-white">

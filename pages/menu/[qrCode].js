@@ -8,6 +8,20 @@ import {
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
 
+// Helper function to generate consistent background colors based on text
+const getColorForText = (text) => {
+  // Generate a hash code from text
+  let hash = 0
+  for (let i = 0; i < text.length; i++) {
+    hash = text.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  // Generate consistent colors in the gray to indigo/purple range for a cohesive dark theme
+  const hue = ((hash % 60) + 210) % 360 // Range between 210-270 (blues/purples)
+  const saturation = 40 + (hash % 30) // 40-70%
+  const lightness = 20 + (hash % 15) // 20-35%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+}
+
 export default function CustomerMenu() {
   const router = useRouter()
   const { qrCode } = router.query
@@ -86,6 +100,7 @@ export default function CustomerMenu() {
           price: item.price,
           quantity: 1,
           notes: '',
+          image: item.image || null,
         },
       ]
     })
@@ -166,7 +181,7 @@ export default function CustomerMenu() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white w-full">
       <Head>
         <title>{table?.restaurant?.name || 'Restaurant Menu'}</title>
         <meta
@@ -231,16 +246,40 @@ export default function CustomerMenu() {
                   key={item._id}
                   className="flex p-4 border-b border-gray-800"
                 >
-                  {/* Left: Image placeholder - you'll add real images later */}
+                  {/* Left: Image */}
                   <div className="w-28 h-28 bg-gray-800 rounded-lg mr-3 overflow-hidden">
-                    <div
-                      className="w-full h-full bg-gray-700 flex items-center justify-center"
-                      style={{
-                        backgroundImage: `url("/images/pizza.jpg")`,
-                        backgroundPosition: 'center',
-                        backgroundSize: 'cover',
-                      }}
-                    ></div>
+                    {item.image ? (
+                      <div className="w-full h-full bg-gray-800 relative">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                            // Add a fallback div with menu item's first letter when image fails
+                            const parent = e.target.parentNode
+                            if (!parent.querySelector('.fallback-image')) {
+                              const fallback = document.createElement('div')
+                              const bgColor = getColorForText(item.name)
+                              fallback.className =
+                                'fallback-image absolute inset-0 flex items-center justify-center text-white text-2xl font-bold'
+                              fallback.style.backgroundColor = bgColor
+                              fallback.textContent = item.name
+                                .charAt(0)
+                                .toUpperCase()
+                              parent.appendChild(fallback)
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center text-white text-2xl font-bold"
+                        style={{ backgroundColor: getColorForText(item.name) }}
+                      >
+                        <span>{item.name.charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Right: Item details */}
@@ -253,13 +292,21 @@ export default function CustomerMenu() {
                           <div className="text-white text-right">
                             ${item.price.toFixed(2)}
                           </div>
-                          {/* You can add discounted price here like in the image */}
-                          <div className="text-gray-500 text-right line-through text-sm">
-                            ${(item.price * 1.3).toFixed(2)}
-                          </div>
-                          <div className="border border-white/30 text-white/80 rounded-full text-xs px-2 py-1  mt-1 text-center">
-                            -30%
-                          </div>
+                          {/* Only show discount if item has discountPercentage property */}
+                          {item.discountPercentage > 0 && (
+                            <>
+                              <div className="text-gray-500 text-right line-through text-sm">
+                                $
+                                {(
+                                  item.price /
+                                  (1 - item.discountPercentage / 100)
+                                ).toFixed(2)}
+                              </div>
+                              <div className="border border-white/30 text-white/80 rounded-full text-xs px-2 py-1 mt-1 text-center">
+                                -{item.discountPercentage}%
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
 
@@ -269,6 +316,25 @@ export default function CustomerMenu() {
                           {item.description}
                         </p>
                       )}
+
+                      {/* Item attributes */}
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {item.isSpicy && (
+                          <span className="px-1.5 py-0.5 bg-red-900/50 text-red-400 text-xs rounded-full">
+                            Spicy
+                          </span>
+                        )}
+                        {item.isVegetarian && (
+                          <span className="px-1.5 py-0.5 bg-green-900/50 text-green-400 text-xs rounded-full">
+                            Vegetarian
+                          </span>
+                        )}
+                        {item.isVegan && (
+                          <span className="px-1.5 py-0.5 bg-green-900/50 text-green-400 text-xs rounded-full">
+                            Vegan
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Add button */}
@@ -289,7 +355,7 @@ export default function CustomerMenu() {
 
       {/* Footer with order info and button */}
       {cart.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 py-3 px-4 flex justify-between items-center z-20">
+        <div className="fixed bottom-0 left-0 right-0 bg-black/80 py-3 px-4 flex justify-between items-center z-20">
           <div>
             <p className="text-sm text-gray-400">
               Your order ({cart.reduce((sum, item) => sum + item.quantity, 0)}{' '}
@@ -301,7 +367,7 @@ export default function CustomerMenu() {
           </div>
           <button
             onClick={toggleCart}
-            className="bg-green-600 text-white px-4 py-2 rounded-full font-medium"
+            className=" text-white px-4 py-2 rounded-full font-medium"
           >
             View Cart
           </button>
@@ -338,14 +404,50 @@ export default function CustomerMenu() {
                     key={item.menuItemId}
                     className="flex justify-between items-center p-3 border-b border-gray-800"
                   >
-                    <div className="flex-1">
-                      <p className="text-white font-medium">{item.name}</p>
-                      <p className="text-gray-400 text-sm">
-                        ${item.price.toFixed(2)}
-                      </p>
-                      {item.notes && (
-                        <p className="text-gray-500 text-xs">{item.notes}</p>
+                    <div className="flex flex-1">
+                      {item.image ? (
+                        <div className="w-14 h-14 bg-gray-800 rounded-lg mr-3 overflow-hidden flex-shrink-0 relative">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              // Add a fallback div with menu item's first letter when image fails
+                              const parent = e.target.parentNode
+                              if (!parent.querySelector('.fallback-image')) {
+                                const fallback = document.createElement('div')
+                                const bgColor = getColorForText(item.name)
+                                fallback.className =
+                                  'fallback-image absolute inset-0 flex items-center justify-center text-white text-2xl font-bold'
+                                fallback.style.backgroundColor = bgColor
+                                fallback.textContent = item.name
+                                  .charAt(0)
+                                  .toUpperCase()
+                                parent.appendChild(fallback)
+                              }
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="w-14 h-14 bg-gray-800 rounded-lg mr-3 overflow-hidden flex-shrink-0 flex items-center justify-center text-white text-xl font-bold"
+                          style={{
+                            backgroundColor: getColorForText(item.name),
+                          }}
+                        >
+                          {item.name.charAt(0).toUpperCase()}
+                        </div>
                       )}
+                      <div className="flex-1">
+                        <p className="text-white font-medium">{item.name}</p>
+                        <p className="text-gray-400 text-sm">
+                          ${item.price.toFixed(2)}
+                        </p>
+                        {item.notes && (
+                          <p className="text-gray-500 text-xs">{item.notes}</p>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <button
@@ -374,7 +476,7 @@ export default function CustomerMenu() {
                     placeholder="Add notes to your order..."
                     value={orderNotes}
                     onChange={(e) => setOrderNotes(e.target.value)}
-                    className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-lg resize-none"
+                    className="w-full p-3 bg-black text-white border border-gray-700 rounded-lg resize-none"
                     rows="3"
                   />
                 </div>
@@ -389,7 +491,7 @@ export default function CustomerMenu() {
                 </div>
                 <button
                   onClick={placeOrder}
-                  className="w-full bg-green-600 text-white py-3 rounded-lg font-medium"
+                  className="w-full border border-[#31E981] text-white py-3 rounded-lg font-medium"
                 >
                   Place Order
                 </button>

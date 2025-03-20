@@ -1,15 +1,30 @@
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
+import { useSidebarContext } from './SidebarContext'
 
 export default function Layout({ children }) {
   const router = useRouter()
   const isAuthPage = router.pathname.startsWith('/auth/')
   const isMenuPage = router.pathname.startsWith('/menu/')
   const shouldHideSidebar = isAuthPage || isMenuPage
+  const { isCollapsed } = useSidebarContext()
 
   return (
-    <div className="relative ">
+    <div className="relative">
+      <Head>
+        <style jsx global>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}</style>
+      </Head>
+
       {/* Video Background */}
       <video
         autoPlay
@@ -29,8 +44,18 @@ export default function Layout({ children }) {
       {!shouldHideSidebar && <Sidebar />}
 
       {/* Main Content */}
-      <main className={`relative z-10 ${!shouldHideSidebar ? 'ml-64' : ''}`}>
-        <div className="h-full flex items-center justify-center py-6  w-full">
+      <main
+        className={`relative z-10 transition-all duration-300 ${
+          !shouldHideSidebar
+            ? router.pathname.includes('/dashboard')
+              ? isCollapsed
+                ? 'ml-[70px]'
+                : 'ml-[256px]'
+              : ''
+            : ''
+        }`}
+      >
+        <div className="h-full flex items-center justify-center py-6 w-full">
           {children}
         </div>
       </main>

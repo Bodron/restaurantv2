@@ -36,7 +36,8 @@ export default async function handler(req, res) {
           name,
           description,
           price,
-          category,
+          menuId,
+          categoryId,
           image,
           isAvailable,
           preparationTime,
@@ -47,12 +48,28 @@ export default async function handler(req, res) {
           isVegan,
         } = req.body
 
+        // Verify that the menu exists and belongs to the restaurant if menu or category is updated
+        if (menuId && categoryId) {
+          const menu = await Menu.findOne({
+            _id: menuId,
+            'categories._id': categoryId,
+            restaurant: session.user.restaurantId,
+          })
+
+          if (!menu) {
+            return res
+              .status(404)
+              .json({ message: 'Menu or category not found' })
+          }
+        }
+
         // Update fields if provided
         if (name) menuItem.name = name
-        if (description) menuItem.description = description
+        if (description !== undefined) menuItem.description = description
         if (price) menuItem.price = price
-        if (category) menuItem.category = category
-        if (image) menuItem.image = image
+        if (menuId) menuItem.menuId = menuId
+        if (categoryId) menuItem.categoryId = categoryId
+        if (image !== undefined) menuItem.image = image
         if (isAvailable !== undefined) menuItem.isAvailable = isAvailable
         if (preparationTime) menuItem.preparationTime = preparationTime
         if (allergens) menuItem.allergens = allergens

@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
     case 'POST':
       try {
-        const { name, description, price, menuId, categoryId } = req.body
+        const { name, description, price, menuId, categoryId, image } = req.body
 
         if (!name || !price || !menuId || !categoryId) {
           return res.status(400).json({
@@ -65,6 +65,7 @@ export default async function handler(req, res) {
           menuId,
           categoryId,
           restaurant: session.user.restaurantId,
+          image,
         })
 
         await menuItem.save()
