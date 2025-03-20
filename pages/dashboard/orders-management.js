@@ -107,7 +107,7 @@ export default function OrdersManagementPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 py-[5%] max-w-[80%] w-full">
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
@@ -118,18 +118,18 @@ export default function OrdersManagementPage() {
         {tableSessions.map((session) => (
           <div
             key={session.sessionId}
-            className="bg-white rounded-lg shadow p-6 space-y-4"
+            className="bg-black rounded-lg w-full border-2 border-[#35605a] shadow p-6 space-y-4"
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-[#31E981]">
                   Table {session.tableNumber}
                 </h3>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-white">
                   Started: {formatDate(session.startTime)}
                 </p>
                 {session.endTime && (
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-white">
                     Ended: {formatDate(session.endTime)}
                   </p>
                 )}
@@ -155,23 +155,23 @@ export default function OrdersManagementPage() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-10">
               {session.orders.map((order) => (
                 <div
                   key={order._id}
-                  className="bg-gray-50 rounded-lg p-4 space-y-4"
+                  className=" bg-stone-800 rounded-lg py-5 px-5 space-y-5"
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-10">
                     <div>
-                      <h4 className="text-md font-medium text-gray-900">
+                      <h4 className="text-md font-medium text-white">
                         Order #{order._id.slice(-6)}
                       </h4>
-                      <p className="text-sm text-gray-700">
+                      <p className="text-sm text-white">
                         Placed: {formatDate(order.createdAt)}
                       </p>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <span
+                      {/* <span
                         className={`px-2 py-1 text-xs font-semibold rounded ${
                           order.status === 'completed'
                             ? 'bg-green-100 text-green-800'
@@ -181,17 +181,22 @@ export default function OrdersManagementPage() {
                         }`}
                       >
                         {order.status.toUpperCase()}
-                      </span>
+                      </span> */}
                       <select
                         value={order.status}
                         onChange={(e) =>
                           handleStatusChange(order._id, e.target.value)
                         }
-                        className="text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="preparing">Preparing</option>
-                        <option value="completed">Completed</option>
+                        className={`px-2 py-1 text-xs uppercase font-semibold rounded ${
+                          order.status === 'completed'
+                            ? 'bg-green-100 text-green-800'
+                            : order.status === 'preparing'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}                      >
+                        <option className='uppercase' value="pending">Pending</option>
+                        <option  className='uppercase' value="preparing">Preparing</option>
+                        <option  className='uppercase' value="completed">Completed</option>
                       </select>
                     </div>
                   </div>
@@ -202,10 +207,10 @@ export default function OrdersManagementPage() {
                         key={index}
                         className="flex justify-between items-center text-sm"
                       >
-                        <span className="text-gray-900">
+                        <span className="text-white">
                           {item.quantity}x {item.menuItem?.name}
                         </span>
-                        <span className="text-gray-900">
+                        <span className="text-white">
                           ${(item.price * item.quantity).toFixed(2)}
                         </span>
                       </div>
@@ -214,7 +219,7 @@ export default function OrdersManagementPage() {
 
                   {order.notes && (
                     <div className="border-t border-gray-200 pt-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">
+                      <h4 className="text-sm font-medium text-white mb-2">
                         Notes:
                       </h4>
                       <p className="text-sm text-gray-700">{order.notes}</p>
@@ -223,8 +228,8 @@ export default function OrdersManagementPage() {
 
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between items-center font-medium">
-                      <span className="text-gray-900">Order Total</span>
-                      <span className="text-gray-900">
+                      <span className="text-white">Order Total</span>
+                      <span className="text-white">
                         $
                         {order.items
                           .reduce(
@@ -239,10 +244,10 @@ export default function OrdersManagementPage() {
               ))}
             </div>
 
-            <div className="border-t border-gray-200 pt-4">
+            <div className="border-t border-[#31E981] pt-4">
               <div className="flex justify-between items-center font-medium text-lg">
-                <span className="text-gray-900">Session Total</span>
-                <span className="text-gray-900">
+                <span className="text-white">Session Total</span>
+                <span className="text-white">
                   ${session.totalAmount.toFixed(2)}
                 </span>
               </div>
