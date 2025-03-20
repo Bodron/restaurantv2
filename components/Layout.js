@@ -5,6 +5,8 @@ import { useRouter } from 'next/router'
 export default function Layout({ children }) {
   const router = useRouter()
   const isAuthPage = router.pathname.startsWith('/auth/')
+  const isMenuPage = router.pathname.startsWith('/menu/')
+  const shouldHideSidebar = isAuthPage || isMenuPage
 
   return (
     <div className="relative ">
@@ -23,12 +25,12 @@ export default function Layout({ children }) {
       {/* Dark overlay */}
       <div className="fixed inset-0 bg-black/90 -z-7" />
 
-      {/* Sidebar - Hidden on auth pages */}
-      {!isAuthPage && <Sidebar />}
+      {/* Sidebar - Hidden on auth pages and menu pages */}
+      {!shouldHideSidebar && <Sidebar />}
 
       {/* Main Content */}
-      <main className={`relative z-10 ${!isAuthPage ? 'ml-64' : ''}`}>
-        <div className=" h-full flex items-center justify-center  py-6 sm:px-6 lg:px-8">
+      <main className={`relative z-10 ${!shouldHideSidebar ? 'ml-64' : ''}`}>
+        <div className="h-full flex items-center justify-center py-6  w-full">
           {children}
         </div>
       </main>
