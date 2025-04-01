@@ -193,7 +193,7 @@ export default function CustomerMenu() {
   return (
     <div className="min-h-screen bg-black text-white w-full">
       <Head>
-        <title>{table?.restaurant?.name || 'Restaurant Menu'}</title>
+        <title>{table?.restaurant?.name || 'Meniu Restaurant'}</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1"
@@ -207,7 +207,7 @@ export default function CustomerMenu() {
         </button>
 
         <h1 className="text-xl font-bold text-white">
-          {table?.restaurant?.name || 'Restaurant Menu'}
+          {table?.restaurant?.name || 'Meniu Restaurant'}
         </h1>
 
         <button className="p-2 rounded-full">
@@ -332,7 +332,7 @@ export default function CustomerMenu() {
                       <div className="flex flex-wrap gap-1 mt-1">
                         {item.isSpicy && (
                           <span className="px-1.5 py-0.5 bg-red-900/50 text-red-400 text-xs rounded-full">
-                            Iute
+                            Picant
                           </span>
                         )}
                         {item.isVegetarian && (
@@ -369,8 +369,7 @@ export default function CustomerMenu() {
         <div className="fixed bottom-0 left-0 right-0 bg-black/80 py-3 px-4 flex justify-between items-center z-20">
           <div>
             <p className="text-sm text-gray-400">
-              Comanda ({cart.reduce((sum, item) => sum + item.quantity, 0)}{' '}
-              produse)
+              Coș ({cart.reduce((sum, item) => sum + item.quantity, 0)} produse)
             </p>
             <p className="text-white font-bold">
               {calculateTotal().toFixed(2)} RON
@@ -393,7 +392,7 @@ export default function CustomerMenu() {
       >
         <div className="h-full flex flex-col">
           <div className="border-b border-gray-800 p-4 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-white">Comanda Ta</h2>
+            <h2 className="text-xl font-bold text-white">Coșul Tău</h2>
             <button
               onClick={toggleCart}
               className="p-2 rounded-full hover:bg-gray-800"

@@ -26,7 +26,7 @@ export default function TablesPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.message || 'Failed to fetch tables')
+        setError(data.message || 'Eroare la încărcarea meselor')
         setTables([])
         return
       }
@@ -34,7 +34,7 @@ export default function TablesPage() {
       setTables(Array.isArray(data) ? data : [])
       setError('')
     } catch (error) {
-      setError('Error fetching tables')
+      setError('Eroare la încărcarea meselor')
       setTables([])
     } finally {
       setLoading(false)
@@ -45,7 +45,7 @@ export default function TablesPage() {
     e.preventDefault()
     try {
       if (!session?.user?.restaurantId) {
-        setError('Please create a restaurant first')
+        setError('Vă rugăm să creați mai întâi un restaurant')
         return
       }
 
@@ -63,13 +63,15 @@ export default function TablesPage() {
         setError(data.message)
       }
     } catch (error) {
-      setError('Error creating table')
+      setError('Eroare la crearea mesei')
     }
   }
 
   if (status === 'loading' || loading) {
     return (
-      <div className="flex items-center justify-center h-full">Loading...</div>
+      <div className="flex items-center justify-center h-full">
+        Se încarcă...
+      </div>
     )
   }
 
@@ -82,12 +84,12 @@ export default function TablesPage() {
       )}
 
       <div className="bg-transparent rounded-lg w-fit shadow pY-6 space-y-4">
-        <h2 className="text-lg font-medium text-[#31E981]">Add New Table</h2>
+        <h2 className="text-lg font-medium text-[#31E981]">Adaugă Masă Nouă</h2>
         <form onSubmit={handleCreateTable} className="space-y-4">
           <div className="flex flex-row justify-between items-center gap-6 ">
             <div className="flex flex-col w-1/2">
               <label className="block text-sm font-medium text-white">
-                Table Number
+                Număr Masă
               </label>
               <input
                 type="number"
@@ -104,7 +106,7 @@ export default function TablesPage() {
             </div>
             <div className="flex flex-col w-1/2">
               <label className="block text-sm font-medium text-white">
-                Capacity
+                Capacitate
               </label>
               <input
                 type="number"
@@ -121,12 +123,12 @@ export default function TablesPage() {
             type="submit"
             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#35605a] transition-all duration-300 ease-in cursor-pointer hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Add Table
+            Adaugă Masă
           </button>
         </form>
       </div>
 
-      <h2 className="text-lg font-medium text-[#31E981]  mt-16">All Tables</h2>
+      <h2 className="text-lg font-medium text-[#31E981] mt-16">Toate Mesele</h2>
 
       <div className="grid grid-cols-4 gap-6">
         {tables?.map((table) => (
@@ -137,17 +139,22 @@ export default function TablesPage() {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-medium text-[#31E981]">
-                  Table {table.tableNumber}
+                  Masa {table.tableNumber}
                 </h3>
-                <p className="text-sm text-white">Capacity: {table.capacity}</p>
-                <p className="text-sm text-white">Status: {table.status}</p>
+                <p className="text-sm text-white">
+                  Capacitate: {table.capacity}
+                </p>
+                <p className="text-sm text-white">
+                  Stare:{' '}
+                  {table.status === 'available' ? 'Disponibilă' : 'Ocupată'}
+                </p>
               </div>
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => window.print()}
                   className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200 cursor-pointer"
                 >
-                  Print QR Code
+                  Printează Cod QR
                 </button>
               </div>
             </div>
@@ -161,15 +168,6 @@ export default function TablesPage() {
                 level="H"
               />
             </div>
-
-            {/*  <div className="border-t border-[#31E981] pt-4">
-              <div className="flex justify-between items-center font-medium text-lg">
-                <span className="text-white">Table QR Code</span>
-                <span className="text-white">
-                  {table.qrCode || 'Not Available'}
-                </span>
-              </div> 
-            </div>*/}
           </div>
         ))}
       </div>

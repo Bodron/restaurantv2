@@ -39,7 +39,7 @@ export default function ManageMenusPage() {
       setMenus(data)
       setLoading(false)
     } catch (error) {
-      setError('Error fetching menus')
+      setError('Eroare la încărcarea meniurilor')
       setLoading(false)
     }
   }
@@ -50,7 +50,7 @@ export default function ManageMenusPage() {
       const data = await res.json()
       setMenuItems(data)
     } catch (error) {
-      setError('Error fetching menu items')
+      setError('Eroare la încărcarea produselor')
     }
   }
 
@@ -76,7 +76,7 @@ export default function ManageMenusPage() {
           )
           resetMenuForm()
         } else {
-          setError(data.message || 'Error updating menu')
+          setError(data.message || 'Eroare la actualizarea meniului')
         }
       } else {
         // Create new menu
@@ -90,18 +90,18 @@ export default function ManageMenusPage() {
           setMenus([...menus, data])
           resetMenuForm()
         } else {
-          setError(data.message || 'Error creating menu')
+          setError(data.message || 'Eroare la crearea meniului')
         }
       }
     } catch (error) {
-      setError('Error processing menu')
+      setError('Eroare la procesarea meniului')
     }
   }
 
   const handleCreateCategory = async (e) => {
     e.preventDefault()
     if (!selectedMenu) {
-      setError('Please select a menu first')
+      setError('Vă rugăm să selectați mai întâi un meniu')
       return
     }
 
@@ -136,7 +136,7 @@ export default function ManageMenusPage() {
           setMenus(updatedMenus)
           resetCategoryForm()
         } else {
-          setError(data.message || 'Error updating category')
+          setError(data.message || 'Eroare la actualizarea categoriei')
         }
       } else {
         // Create new category
@@ -159,11 +159,11 @@ export default function ManageMenusPage() {
           setMenus(updatedMenus)
           resetCategoryForm()
         } else {
-          setError(data.message || 'Error creating category')
+          setError(data.message || 'Eroare la crearea categoriei')
         }
       }
     } catch (error) {
-      setError('Error processing category')
+      setError('Eroare la procesarea categoriei')
     }
   }
 
@@ -189,7 +189,7 @@ export default function ManageMenusPage() {
   const handleDeleteMenu = async (menuId) => {
     if (
       !confirm(
-        'Are you sure you want to delete this menu? This will also delete all categories and references to menu items.'
+        'Sigur doriți să ștergeți acest meniu? Acest lucru va șterge și toate categoriile și referințele la produse.'
       )
     ) {
       return
@@ -205,10 +205,10 @@ export default function ManageMenusPage() {
         setMenus(menus.filter((menu) => menu._id !== menuId))
       } else {
         const data = await res.json()
-        setError(data.message || 'Error deleting menu')
+        setError(data.message || 'Eroare la ștergerea meniului')
       }
     } catch (error) {
-      setError('Error deleting menu')
+      setError('Eroare la ștergerea meniului')
     } finally {
       setIsDeleting(false)
     }
@@ -217,7 +217,7 @@ export default function ManageMenusPage() {
   const handleDeleteCategory = async (menuId, categoryId) => {
     if (
       !confirm(
-        'Are you sure you want to delete this category? Menu items in this category will be unlinked.'
+        'Sigur doriți să ștergeți această categorie? Produsele din această categorie vor fi dezlegate.'
       )
     ) {
       return
@@ -245,10 +245,10 @@ export default function ManageMenusPage() {
         setMenus(updatedMenus)
       } else {
         const data = await res.json()
-        setError(data.message || 'Error deleting category')
+        setError(data.message || 'Eroare la ștergerea categoriei')
       }
     } catch (error) {
-      setError('Error deleting category')
+      setError('Eroare la ștergerea categoriei')
     } finally {
       setIsDeleting(false)
     }
@@ -281,7 +281,7 @@ export default function ManageMenusPage() {
         setError(data.message)
       }
     } catch (error) {
-      setError('Error setting active menu')
+      setError('Eroare la setarea meniului activ')
     }
   }
 
@@ -297,7 +297,9 @@ export default function ManageMenusPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="flex items-center justify-center h-full">Loading...</div>
+      <div className="flex items-center justify-center h-full">
+        Se încarcă...
+      </div>
     )
   }
 
@@ -313,12 +315,12 @@ export default function ManageMenusPage() {
         <>
           <div className="bg-black/50 shadow rounded-lg p-6">
             <h2 className="text-lg font-medium mb-4 text-white/80">
-              {isEditMode ? 'Edit Menu' : 'Create New Menu'}
+              {isEditMode ? 'Editează Meniu' : 'Creează Meniu Nou'}
             </h2>
             <form onSubmit={handleCreateMenu} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-white/80">
-                  Menu Name
+                  Nume Meniu
                   <input
                     type="text"
                     value={newMenu.name}
@@ -340,7 +342,9 @@ export default function ManageMenusPage() {
                     }
                     className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
-                  <span className="ml-2 text-white/80">Set as active menu</span>
+                  <span className="ml-2 text-white/80">
+                    Setează ca meniu activ
+                  </span>
                 </label>
               </div>
               <div className="flex space-x-2">
@@ -348,7 +352,7 @@ export default function ManageMenusPage() {
                   type="submit"
                   className="inline-flex justify-center py-2 px-4  shadow-sm text-sm font-medium rounded-md text-white bg-black   border border-white/80"
                 >
-                  {isEditMode ? 'Update Menu' : 'Create Menu'}
+                  {isEditMode ? 'Actualizează Meniu' : 'Creează Meniu'}
                 </button>
                 {isEditMode && (
                   <button
@@ -356,7 +360,7 @@ export default function ManageMenusPage() {
                     onClick={resetMenuForm}
                     className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Cancel
+                    Anulează
                   </button>
                 )}
               </div>
@@ -365,12 +369,14 @@ export default function ManageMenusPage() {
 
           <div className="bg-black/50 shadow rounded-lg p-6">
             <h2 className="text-lg font-medium mb-4 text-white/80">
-              {isEditingCategory ? 'Edit Category' : 'Add Category to Menu'}
+              {isEditingCategory
+                ? 'Editează Categorie'
+                : 'Adaugă Categorie la Meniu'}
             </h2>
             <form onSubmit={handleCreateCategory} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-white/80">
-                  Select Menu
+                  Selectează Meniu
                   <select
                     value={selectedMenu?._id || ''}
                     onChange={(e) => {
@@ -383,7 +389,7 @@ export default function ManageMenusPage() {
                     disabled={isEditingCategory}
                   >
                     <option className="text-black" value="">
-                      Select a menu
+                      Selectează un meniu
                     </option>
                     {menus.map((menu) => (
                       <option
@@ -399,7 +405,7 @@ export default function ManageMenusPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-white/80">
-                  Category Name
+                  Nume Categorie
                   <input
                     type="text"
                     value={newCategory.name}
@@ -416,7 +422,9 @@ export default function ManageMenusPage() {
                   type="submit"
                   className="inline-flex justify-center py-2 px-4  shadow-sm text-sm font-medium rounded-md text-white bg-black   border border-white/80"
                 >
-                  {isEditingCategory ? 'Update Category' : 'Add Category'}
+                  {isEditingCategory
+                    ? 'Actualizează Categorie'
+                    : 'Adaugă Categorie'}
                 </button>
                 {isEditingCategory && (
                   <button
@@ -424,7 +432,7 @@ export default function ManageMenusPage() {
                     onClick={resetCategoryForm}
                     className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Cancel
+                    Anulează
                   </button>
                 )}
               </div>
@@ -433,7 +441,7 @@ export default function ManageMenusPage() {
 
           <div className="bg-black/50 shadow rounded-lg p-6">
             <h2 className="text-lg font-medium mb-4 text-white/80">
-              Existing Menus
+              Meniuri Existente
             </h2>
             <div className="space-y-4">
               {menus.map((menu) => (
@@ -450,7 +458,7 @@ export default function ManageMenusPage() {
                             : 'bg-gray-100 text-gray-800'
                         }`}
                       >
-                        {menu.isActive ? 'Active' : 'Inactive'}
+                        {menu.isActive ? 'Activ' : 'Inactiv'}
                       </span>
                       {!menu.isActive && (
                         <button
@@ -458,7 +466,7 @@ export default function ManageMenusPage() {
                           className="px-3 py-1 text-sm text-indigo-600 hover:text-indigo-900"
                           disabled={isDeleting}
                         >
-                          Set Active
+                          Setează Activ
                         </button>
                       )}
                       <button
@@ -466,12 +474,12 @@ export default function ManageMenusPage() {
                         className="px-3 py-1 text-sm border border-white/60 rounded-md  cursor-pointer"
                         disabled={isDeleting}
                       >
-                        Preview Menu
+                        Previzualizare Meniu
                       </button>
                       <button
                         onClick={() => handleEditMenu(menu)}
                         className="p-1 rounded-full  text-white/60 transition-colors cursor-pointer"
-                        title="Edit menu"
+                        title="Editează meniu"
                         disabled={isDeleting}
                       >
                         <PencilIcon className="h-4 w-4" />
@@ -479,7 +487,7 @@ export default function ManageMenusPage() {
                       <button
                         onClick={() => handleDeleteMenu(menu._id)}
                         className="p-1  rounded-full  text-red-600/90 transition-colors"
-                        title="Delete menu"
+                        title="Șterge meniu"
                         disabled={isDeleting || menu.isActive}
                       >
                         <TrashIcon className="h-4 w-4" />
@@ -488,7 +496,7 @@ export default function ManageMenusPage() {
                   </div>
                   <div className="pl-4">
                     <h4 className="text-sm font-medium text-white/80 mb-2">
-                      Categories:
+                      Categorii:
                     </h4>
                     <ul className="list-disc pl-5 space-y-1">
                       {menu.categories?.map((category) => (
@@ -501,7 +509,7 @@ export default function ManageMenusPage() {
                             <button
                               onClick={() => handleEditCategory(menu, category)}
                               className="p-1 rounded-full  text-white/60 transition-colors cursor-pointer"
-                              title="Edit category"
+                              title="Editează categorie"
                               disabled={isDeleting}
                             >
                               <PencilIcon className="h-4 w-4" />
@@ -511,7 +519,7 @@ export default function ManageMenusPage() {
                                 handleDeleteCategory(menu._id, category._id)
                               }
                               className="p-1  rounded-full  text-red-600/90 transition-colors"
-                              title="Delete category"
+                              title="Șterge categorie"
                               disabled={isDeleting}
                             >
                               <TrashIcon className="h-4 w-4" />
@@ -530,7 +538,7 @@ export default function ManageMenusPage() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-white">
-              Menu Preview: {selectedMenuForPreview?.name}
+              Previzualizare Meniu: {selectedMenuForPreview?.name}
             </h1>
             <div className="flex space-x-2">
               <button
@@ -545,13 +553,13 @@ export default function ManageMenusPage() {
                 }}
                 className="px-4 py-2 bg-black text-white/80 rounded-md "
               >
-                Edit Menu
+                Editează Meniu
               </button>
               <button
                 onClick={() => setPreviewMode(false)}
                 className="px-4 py-2  text-white/80 rounded-md border border-white/80"
               >
-                Back to Management
+                Înapoi la Gestionare
               </button>
             </div>
           </div>
@@ -583,7 +591,7 @@ export default function ManageMenusPage() {
                               setPreviewMode(false)
                             }}
                             className="p-1  rounded-full text-white transition-colors"
-                            title="Edit category"
+                            title="Editează categorie"
                           >
                             <PencilIcon className="h-4 w-4" />
                           </button>
@@ -592,7 +600,7 @@ export default function ManageMenusPage() {
                               e.stopPropagation()
                               if (
                                 confirm(
-                                  'Are you sure you want to delete this category?'
+                                  'Sigur doriți să ștergeți această categorie?'
                                 )
                               ) {
                                 handleDeleteCategory(
@@ -617,7 +625,7 @@ export default function ManageMenusPage() {
                               }
                             }}
                             className="p-1 ml-1 text-red-600/80 rounded-full   transition-colors"
-                            title="Delete category"
+                            title="Șterge categorie"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
@@ -639,7 +647,7 @@ export default function ManageMenusPage() {
                   }}
                   className="px-4 py-2 text-sm border  border-green-500 text-white/80 rounded-md hover:bg-green-600"
                 >
-                  Add New Category
+                  Adaugă Categorie Nouă
                 </button>
               </div>
             </div>
@@ -648,14 +656,14 @@ export default function ManageMenusPage() {
               <>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-medium text-black">
-                    {selectedCategory.name} Items
+                    Produse din {selectedCategory.name}
                   </h2>
                 </div>
 
                 {getMenuItemsForCategory(selectedCategory._id).length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    No items in this category. Add items from the Menu Items
-                    page.
+                    Nu există produse în această categorie. Adăugați produse din
+                    pagina Produse Meniu.
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -694,7 +702,7 @@ export default function ManageMenusPage() {
                           <div className="flex flex-wrap mt-2 gap-1">
                             {item.isSpicy && (
                               <span className="inline-block px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded">
-                                Spicy
+                                Picant
                               </span>
                             )}
                             {item.isVegetarian && (
@@ -719,13 +727,14 @@ export default function ManageMenusPage() {
             {!selectedCategory &&
               selectedMenuForPreview?.categories?.length > 0 && (
                 <div className="text-center py-8 text-gray-500">
-                  Please select a category to view items
+                  Vă rugăm să selectați o categorie pentru a vedea produsele
                 </div>
               )}
 
             {selectedMenuForPreview?.categories?.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                This menu has no categories. Add some categories to get started.
+                Acest meniu nu are categorii. Adăugați câteva categorii pentru a
+                începe.
               </div>
             )}
           </div>

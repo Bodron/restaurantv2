@@ -42,7 +42,7 @@ export default function MenuItemsPage() {
       const data = await res.json()
       setMenus(data)
     } catch (error) {
-      setError('Error fetching menus')
+      setError('Eroare la încărcarea meniurilor')
     }
   }
 
@@ -52,14 +52,14 @@ export default function MenuItemsPage() {
       const data = await res.json()
       setMenuItems(data)
     } catch (error) {
-      setError('Error fetching menu items')
+      setError('Eroare la încărcarea produselor')
     } finally {
       setLoading(false)
     }
   }
 
   const handleDeleteMenuItem = async (id) => {
-    if (!confirm('Are you sure you want to delete this menu item?')) {
+    if (!confirm('Sigur doriți să ștergeți acest produs din meniu?')) {
       return
     }
     setIsDeleting(true)
@@ -71,10 +71,10 @@ export default function MenuItemsPage() {
         setMenuItems(menuItems.filter((item) => item._id !== id))
       } else {
         const data = await res.json()
-        setError(data.message || 'Error deleting menu item')
+        setError(data.message || 'Eroare la ștergerea produsului')
       }
     } catch (error) {
-      setError('Error deleting menu item')
+      setError('Eroare la ștergerea produsului')
     } finally {
       setIsDeleting(false)
     }
@@ -94,13 +94,17 @@ export default function MenuItemsPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="flex items-center justify-center h-full">Loading...</div>
+      <div className="flex items-center justify-center h-full">
+        Se încarcă...
+      </div>
     )
   }
 
   return (
     <div className="space-y-6 p-6 w-[80%]">
-      <h1 className="text-2xl font-bold text-white">Menu Items Page</h1>
+      <h1 className="text-2xl font-bold text-white">
+        Gestionare Produse Meniu
+      </h1>
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
@@ -116,11 +120,11 @@ export default function MenuItemsPage() {
 
       <div className="bg-black/80 shadow rounded-lg p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-          <h2 className="text-lg font-medium text-white/70">Menu Items</h2>
+          <h2 className="text-lg font-medium text-white/70">Produse Meniu</h2>
           <div className="mt-2 md:mt-0 relative">
             <input
               type="text"
-              placeholder="Search menu items..."
+              placeholder="Caută produse..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="p-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-1  w-full md:w-auto"
@@ -137,7 +141,7 @@ export default function MenuItemsPage() {
                   : 'border border-white/50 text-white '
               }`}
             >
-              All Items
+              Toate Produsele
             </button>
             {allCategories.map((category) => (
               <button
@@ -156,9 +160,9 @@ export default function MenuItemsPage() {
         )}
         {filteredMenuItems.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No menu items found.{' '}
-            {searchTerm ? 'Try a different search term or ' : ''}
-            {activeCategory ? 'try selecting a different category.' : ''}
+            Nu s-au găsit produse.{' '}
+            {searchTerm ? 'Încercați alt termen de căutare sau ' : ''}
+            {activeCategory ? 'selectați o altă categorie.' : ''}
           </div>
         ) : (
           <div className="space-y-4">
@@ -181,7 +185,7 @@ export default function MenuItemsPage() {
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full w-full bg-gray-200 text-gray-400">
-                        <span>No image</span>
+                        <span>Fără imagine</span>
                       </div>
                     )}
                   </div>
@@ -199,7 +203,7 @@ export default function MenuItemsPage() {
                         <div className="mt-2 text-xs text-gray-500">
                           {allCategories.find(
                             (cat) => cat._id === item.categoryId
-                          )?.name || 'Uncategorized'}
+                          )?.name || 'Fără categorie'}
                         </div>
                       </div>
                       <div className="text-right flex flex-col items-end">
@@ -208,16 +212,15 @@ export default function MenuItemsPage() {
                         </div>
                         <div className="flex space-x-2 mt-2">
                           <button
-                            // Editing functionality can be implemented similarly
                             className="p-1.5  rounded-full  text-white transition-colors cursor-pointer"
-                            title="Edit menu item"
+                            title="Editează produsul"
                           >
                             <PencilIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteMenuItem(item._id)}
                             className="p-1.5  text-red-600/80 transition-colors cursor-pointer"
-                            title="Delete menu item"
+                            title="Șterge produsul"
                             disabled={isDeleting}
                           >
                             <TrashIcon className="h-4 w-4" />

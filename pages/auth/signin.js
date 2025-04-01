@@ -59,7 +59,7 @@ export default function SignIn() {
           throw new Error(result.error)
         }
 
-        router.push('/dashboard')
+        router.push('/dashboard/orders-management')
       } catch (err) {
         setError(err.message)
       }

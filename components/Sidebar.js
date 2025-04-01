@@ -171,41 +171,41 @@ export default function Sidebar() {
       icon: BuildingStorefrontIcon,
       children: [
         {
-          name: 'Tables',
+          name: 'Mese',
           href: '/dashboard/restaurant/tables',
           icon: TableCellsIcon,
         },
         {
-          name: 'Menu Items',
+          name: 'Produse Meniu',
           href: '/dashboard/restaurant/menuitems',
           icon: ListBulletIcon,
         },
         {
-          name: 'Manage Menus',
+          name: 'Gestionare Meniuri',
           href: '/dashboard/restaurant/managemenus',
           icon: ClipboardDocumentListIcon,
         },
       ],
     },
     {
-      name: 'Orders',
+      name: 'Comenzi',
       href: '/dashboard/orders-management',
       icon: ShoppingBagIcon,
       children: [
         {
-          name: 'Live Orders',
+          name: 'Comenzi Active',
           href: '/dashboard/orders-management',
           icon: ClipboardDocumentCheckIcon,
         },
         {
-          name: 'All Tables Orders',
+          name: 'Istoric Comenzi Mese',
           href: '/dashboard/orders/tables-history',
           icon: TableCellsIcon,
         },
       ],
     },
     {
-      name: 'Analytics',
+      name: 'Statistici',
       href: '/statistics',
       icon: ChartBarIcon,
     },
@@ -237,7 +237,7 @@ export default function Sidebar() {
             >
               <img
                 src="/images/logorestaurant.jpg"
-                alt="Restaurant Logo"
+                alt="Logo Restaurant"
                 className="h-36 w-auto object-contain"
               />
             </motion.div>
@@ -250,7 +250,7 @@ export default function Sidebar() {
             >
               <img
                 src="/images/logorestaurant.jpg"
-                alt="Restaurant Logo"
+                alt="Logo Restaurant"
                 className="h-28 w-auto object-contain"
               />
             </motion.div>
@@ -289,7 +289,7 @@ export default function Sidebar() {
               {!isCollapsed && (
                 <div className="flex flex-col">
                   <span className="text-white font-medium text-sm">
-                    {session.user.name || 'User'}
+                    {session.user.name || 'Utilizator'}
                   </span>
                   <span className="text-gray-400 text-xs truncate max-w-[160px]">
                     {session.user.email}
@@ -313,10 +313,10 @@ export default function Sidebar() {
             <ArrowRightOnRectangleIcon
               className={`h-5 w-5 ${!isCollapsed && 'mr-3'}`}
             />
-            {!isCollapsed && <span className="text-sm">Sign Out</span>}
+            {!isCollapsed && <span className="text-sm">Deconectare</span>}
             {isCollapsed && (
               <span className="fixed left-[68px] ml-2 w-max opacity-0 group-hover:opacity-100 bg-gray-800 text-white text-xs px-2 py-1 rounded transition-opacity duration-300 z-50">
-                Sign Out
+                Deconectare
               </span>
             )}
           </motion.button>

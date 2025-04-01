@@ -63,7 +63,7 @@ export default function OrdersManagementPage() {
       setTableSessions(Object.values(groupedOrders))
       setLoading(false)
     } catch (error) {
-      setError('Error fetching orders')
+      setError('Eroare la încărcarea comenzilor')
       setLoading(false)
     }
   }
@@ -85,7 +85,7 @@ export default function OrdersManagementPage() {
         setError(data.message)
       }
     } catch (error) {
-      setError('Error updating order status')
+      setError('Eroare la actualizarea statusului comenzii')
     }
   }
 
@@ -106,24 +106,26 @@ export default function OrdersManagementPage() {
         setError(data.message)
       }
     } catch (error) {
-      setError('Error marking session as paid')
+      setError('Eroare la marcarea sesiunii ca plătită')
     }
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString()
+    return new Date(dateString).toLocaleString('ro-RO')
   }
 
   if (status === 'loading' || loading) {
     return (
-      <div className="flex items-center justify-center h-full">Loading...</div>
+      <div className="flex items-center justify-center h-full">
+        Se încarcă...
+      </div>
     )
   }
 
   return (
     <div className="space-y-6 py-[5%] max-w-[80%] w-full">
       <Head>
-        <title>Orders Management</title>
+        <title>Gestionare Comenzi</title>
         <style jsx global>{`
           .scrollbar-hide::-webkit-scrollbar {
             display: none;
@@ -139,7 +141,7 @@ export default function OrdersManagementPage() {
           .fallback-image {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-center;
             width: 100%;
             height: 100%;
           }
@@ -161,14 +163,14 @@ export default function OrdersManagementPage() {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-medium text-[#31E981]">
-                  Table {session.tableNumber}
+                  Masa {session.tableNumber}
                 </h3>
                 <p className="text-sm text-white">
-                  Started: {formatDate(session.startTime)}
+                  Început: {formatDate(session.startTime)}
                 </p>
                 {session.endTime && (
                   <p className="text-sm text-white">
-                    Ended: {formatDate(session.endTime)}
+                    Sfârșit: {formatDate(session.endTime)}
                   </p>
                 )}
               </div>
@@ -180,14 +182,14 @@ export default function OrdersManagementPage() {
                       : 'bg-yellow-100 text-yellow-800'
                   }`}
                 >
-                  {session.status.toUpperCase()}
+                  {session.status === 'paid' ? 'PLĂTIT' : 'ACTIV'}
                 </span>
                 {session.status !== 'paid' && (
                   <button
                     onClick={() => handleMarkSessionAsPaid(session.sessionId)}
                     className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200"
                   >
-                    Mark as Paid
+                    Marchează ca Plătit
                   </button>
                 )}
               </div>
@@ -199,11 +201,16 @@ export default function OrdersManagementPage() {
                   <div className="flex justify-between items-start gap-10">
                     <div>
                       <h4 className="text-md font-medium text-white">
-                        Order #{order._id.slice(-6)}
+                        Comanda #{order._id.slice(-6)}
                       </h4>
                       <p className="text-sm text-white">
-                        Placed: {formatDate(order.createdAt)}
+                        Plasată: {formatDate(order.createdAt)}
                       </p>
+                      {order.isGuestOrder && (
+                        <p className="text-sm text-gray-400">
+                          Client: {order.guestName || 'Anonim'}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center space-x-4">
                       <select
@@ -220,13 +227,13 @@ export default function OrdersManagementPage() {
                         }`}
                       >
                         <option className="uppercase" value="pending">
-                          Pending
+                          În Așteptare
                         </option>
                         <option className="uppercase" value="preparing">
-                          Preparing
+                          În Preparare
                         </option>
                         <option className="uppercase" value="completed">
-                          Completed
+                          Finalizată
                         </option>
                       </select>
                     </div>
@@ -251,7 +258,8 @@ export default function OrdersManagementPage() {
                                 const parent = e.target.parentNode
                                 if (!parent.querySelector('.fallback-image')) {
                                   const fallback = document.createElement('div')
-                                  const itemName = item.menuItem?.name || 'Item'
+                                  const itemName =
+                                    item.menuItem?.name || 'Produs'
                                   const bgColor = getColorForText(itemName)
                                   fallback.className =
                                     'fallback-image absolute inset-0 text-white text-lg font-bold'
@@ -268,11 +276,11 @@ export default function OrdersManagementPage() {
                               className="w-full h-full flex items-center justify-center text-white text-lg font-bold"
                               style={{
                                 backgroundColor: getColorForText(
-                                  item.menuItem?.name || 'Item'
+                                  item.menuItem?.name || 'Produs'
                                 ),
                               }}
                             >
-                              {(item.menuItem?.name || 'I')
+                              {(item.menuItem?.name || 'P')
                                 .charAt(0)
                                 .toUpperCase()}
                             </div>
@@ -283,15 +291,15 @@ export default function OrdersManagementPage() {
                         <div className="flex-1 flex justify-between items-center">
                           <span className="text-white">
                             {item.quantity}x{' '}
-                            {item.menuItem?.name || 'Unknown Item'}
+                            {item.menuItem?.name || 'Produs Necunoscut'}
                             {item.notes && (
                               <span className="text-xs text-gray-400 block mt-1">
-                                Note: {item.notes}
+                                Notă: {item.notes}
                               </span>
                             )}
                           </span>
                           <span className="text-white">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {(item.price * item.quantity).toFixed(2)} RON
                           </span>
                         </div>
                       </div>
@@ -301,7 +309,7 @@ export default function OrdersManagementPage() {
                   {order.notes && (
                     <div className="border-t border-gray-800 pt-4">
                       <h4 className="text-sm font-medium text-white mb-2">
-                        Order Notes:
+                        Note Comandă:
                       </h4>
                       <p className="text-sm text-gray-400">{order.notes}</p>
                     </div>
@@ -309,15 +317,15 @@ export default function OrdersManagementPage() {
 
                   <div className="border-t border-gray-800 pt-4">
                     <div className="flex justify-between items-center font-medium">
-                      <span className="text-white">Order Total</span>
+                      <span className="text-white">Total Comandă</span>
                       <span className="text-white">
-                        $
                         {order.items
                           .reduce(
                             (sum, item) => sum + item.price * item.quantity,
                             0
                           )
-                          .toFixed(2)}
+                          .toFixed(2)}{' '}
+                        RON
                       </span>
                     </div>
                   </div>
@@ -327,9 +335,9 @@ export default function OrdersManagementPage() {
 
             <div className="border-t border-[#31E981] pt-4">
               <div className="flex justify-between items-center font-medium text-lg">
-                <span className="text-white">Session Total</span>
+                <span className="text-white">Total Sesiune</span>
                 <span className="text-white">
-                  ${session.totalAmount.toFixed(2)}
+                  {session.totalAmount.toFixed(2)} RON
                 </span>
               </div>
             </div>

@@ -43,26 +43,26 @@ export default function TablesHistoryPage() {
       setTables(data)
       setLoading(false)
     } catch (error) {
-      setError('Error fetching tables')
+      setError('Eroare la încărcarea meselor')
       setLoading(false)
     }
   }
 
   const fetchTableOrders = async (tableId) => {
     try {
-      console.log('Fetching orders for table:', tableId)
+      console.log('Se încarcă comenzile pentru masa:', tableId)
       setLoading(true)
       setError('')
 
       const res = await fetch(`/api/orders/table/${tableId}`)
       if (!res.ok) {
         const errorText = await res.text()
-        console.error('API error response:', errorText)
-        throw new Error(`API responded with status ${res.status}: ${errorText}`)
+        console.error('Eroare API:', errorText)
+        throw new Error(`API a răspuns cu statusul ${res.status}: ${errorText}`)
       }
 
       const data = await res.json()
-      console.log('Received table orders data structure:', {
+      console.log('Structura datelor primite pentru comenzile mesei:', {
         isArray: Array.isArray(data),
         length: Array.isArray(data) ? data.length : 'N/A',
         firstItem:
@@ -79,20 +79,20 @@ export default function TablesHistoryPage() {
                     ? data[0].orders[0].items.length
                     : 'N/A',
               }
-            : 'No items',
+            : 'Fără înregistrări',
       })
       setTableOrders(data)
       setLoading(false)
     } catch (error) {
-      console.error('Error fetching table orders:', error)
-      setError(`Error fetching table orders: ${error.message}`)
+      console.error('Eroare la încărcarea comenzilor mesei:', error)
+      setError(`Eroare la încărcarea comenzilor mesei: ${error.message}`)
       setTableOrders([])
       setLoading(false)
     }
   }
 
   const handleTableSelect = async (table) => {
-    console.log('Selected table:', table)
+    console.log('Masă selectată:', table)
     setSelectedTable(table)
     await fetchTableOrders(table._id)
   }
@@ -108,14 +108,14 @@ export default function TablesHistoryPage() {
       })
 
       if (res.ok) {
-        // Refresh the orders for the current table
+        // Reîmprospătează comenzile pentru masa curentă
         await fetchTableOrders(selectedTable._id)
       } else {
         const data = await res.json()
         setError(data.message)
       }
     } catch (error) {
-      setError('Error updating session status')
+      setError('Eroare la actualizarea stării sesiunii')
     }
   }
 
@@ -130,19 +130,19 @@ export default function TablesHistoryPage() {
       })
 
       if (res.ok) {
-        // Refresh the orders for the current table
+        // Reîmprospătează comenzile pentru masa curentă
         await fetchTableOrders(selectedTable._id)
       } else {
         const data = await res.json()
         setError(data.message)
       }
     } catch (error) {
-      setError('Error updating order status')
+      setError('Eroare la actualizarea stării comenzii')
     }
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString()
+    return new Date(dateString).toLocaleString('ro-RO')
   }
 
   const calculateTotal = (orders) => {
@@ -158,14 +158,16 @@ export default function TablesHistoryPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="flex items-center justify-center h-full">Loading...</div>
+      <div className="flex items-center justify-center h-full">
+        Se încarcă...
+      </div>
     )
   }
-  console.log('CONSOLE LOG TABLEORDER', tableOrders)
+
   return (
     <div className="space-y-6 p-6 min-w-[80%]">
       <Head>
-        <title>Tables History</title>
+        <title>Istoric Mese</title>
         <style jsx global>{`
           .scrollbar-hide::-webkit-scrollbar {
             display: none;
@@ -188,7 +190,7 @@ export default function TablesHistoryPage() {
         `}</style>
       </Head>
 
-      <h2 className="text-2xl font-bold text-white mb-6">Tables</h2>
+      <h2 className="text-2xl font-bold text-white mb-6">Mese</h2>
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
@@ -207,25 +209,11 @@ export default function TablesHistoryPage() {
             } border-2 border-[#35605a] rounded-lg shadow p-6`}
           >
             <h3 className="text-lg font-medium text-[#31E981]">
-              Table {table.tableNumber}
+              Masa {table.tableNumber}
             </h3>
             <p className="text-sm text-white mt-1">
-              Capacity: {table.capacity} persons
+              Capacitate: {table.capacity} persoane
             </p>
-            {/* {table.qrCode && (
-              <>
-              <p className="text-sm text-white mt-1">
-                QR Code: 
-                {/* {table.qrCode} 
-              </p>
-              <QRCode
-              value={`${
-                typeof window !== 'undefined' ? window.location.origin : ''
-              }/menu/${table.qrCode}`}
-              size={200}
-              level="H"
-            /></>
-            )} */}
           </div>
         ))}
       </div>
@@ -233,23 +221,23 @@ export default function TablesHistoryPage() {
       {selectedTable && (
         <div className="mt-8 bg-transparent rounded-lg shadow py-6">
           <h2 className="text-2xl font-bold text-white mb-6">
-            Order History for Table {selectedTable.tableNumber}
+            Istoric Comenzi pentru Masa {selectedTable.tableNumber}
           </h2>
 
           {loading ? (
             <div className="flex flex-col items-center justify-center p-8 bg-black/50 rounded-lg border border-[#35605a]">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#31E981] mb-4"></div>
-              <p className="text-white">Loading order history...</p>
+              <p className="text-white">Se încarcă istoricul comenzilor...</p>
             </div>
           ) : error ? (
             <div className="bg-red-900/30 text-red-200 p-6 rounded-lg border border-red-800 mb-4">
-              <h3 className="font-bold text-lg mb-2">Error</h3>
+              <h3 className="font-bold text-lg mb-2">Eroare</h3>
               <p>{error}</p>
               <button
                 onClick={() => fetchTableOrders(selectedTable._id)}
                 className="mt-4 px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded-md transition-colors"
               >
-                Try Again
+                Încearcă din nou
               </button>
             </div>
           ) : (
@@ -263,14 +251,14 @@ export default function TablesHistoryPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="text-lg font-medium text-[#31E981]">
-                          Session #{session._id.slice(-6)}
+                          Sesiune #{session._id.slice(-6)}
                         </h3>
                         <p className="text-sm text-white">
-                          Started: {formatDate(session.startTime)}
+                          Început: {formatDate(session.startTime)}
                         </p>
                         {session.endTime && (
                           <p className="text-sm text-white">
-                            Ended: {formatDate(session.endTime)}
+                            Sfârșit: {formatDate(session.endTime)}
                           </p>
                         )}
                       </div>
@@ -282,15 +270,14 @@ export default function TablesHistoryPage() {
                               : 'bg-yellow-100 text-yellow-800'
                           }`}
                         >
-                          {session.status.charAt(0).toUpperCase() +
-                            session.status.slice(1)}
+                          {session.status === 'paid' ? 'PLĂTIT' : 'ACTIV'}
                         </span>
                         {session.status !== 'paid' && (
                           <button
                             onClick={() => handleMarkAsPaid(session._id)}
                             className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200"
                           >
-                            Mark as Paid
+                            Marchează ca Plătit
                           </button>
                         )}
                       </div>
@@ -306,11 +293,16 @@ export default function TablesHistoryPage() {
                             <div className="flex justify-between items-start gap-10">
                               <div>
                                 <h4 className="text-md font-medium text-white">
-                                  Order #{order._id.slice(-6)}
+                                  Comanda #{order._id.slice(-6)}
                                 </h4>
                                 <p className="text-sm text-white">
-                                  Placed: {formatDate(order.createdAt)}
+                                  Plasată: {formatDate(order.createdAt)}
                                 </p>
+                                {order.isGuestOrder && (
+                                  <p className="text-sm text-gray-400">
+                                    Client: {order.guestName || 'Anonim'}
+                                  </p>
+                                )}
                               </div>
                               <div className="flex items-center space-x-4">
                                 <select
@@ -330,19 +322,19 @@ export default function TablesHistoryPage() {
                                   }`}
                                 >
                                   <option className="uppercase" value="pending">
-                                    Pending
+                                    În Așteptare
                                   </option>
                                   <option
                                     className="uppercase"
                                     value="preparing"
                                   >
-                                    Preparing
+                                    În Preparare
                                   </option>
                                   <option
                                     className="uppercase"
                                     value="completed"
                                   >
-                                    Completed
+                                    Finalizată
                                   </option>
                                 </select>
                               </div>
@@ -364,7 +356,6 @@ export default function TablesHistoryPage() {
                                           className="w-full h-full object-cover"
                                           onError={(e) => {
                                             e.target.style.display = 'none'
-                                            // Add a fallback div with menu item's first letter when image fails
                                             const parent = e.target.parentNode
                                             if (
                                               !parent.querySelector(
@@ -374,7 +365,7 @@ export default function TablesHistoryPage() {
                                               const fallback =
                                                 document.createElement('div')
                                               const itemName =
-                                                item.name || 'Item'
+                                                item.name || 'Produs'
                                               const bgColor =
                                                 getColorForText(itemName)
                                               fallback.className =
@@ -393,11 +384,11 @@ export default function TablesHistoryPage() {
                                           className="w-full h-full flex items-center justify-center text-white text-lg font-bold"
                                           style={{
                                             backgroundColor: getColorForText(
-                                              item.name || 'Item'
+                                              item.name || 'Produs'
                                             ),
                                           }}
                                         >
-                                          {(item.name || 'I')
+                                          {(item.name || 'P')
                                             .charAt(0)
                                             .toUpperCase()}
                                         </div>
@@ -408,13 +399,13 @@ export default function TablesHistoryPage() {
                                     <div className="flex-1 flex justify-between items-center">
                                       <span className="text-white">
                                         {item.quantity}x{' '}
-                                        {item.name || 'Unknown Item'}
+                                        {item.name || 'Produs Necunoscut'}
                                       </span>
                                       <span className="text-white">
-                                        $
                                         {(item.price * item.quantity).toFixed(
                                           2
-                                        )}
+                                        )}{' '}
+                                        RON
                                       </span>
                                     </div>
                                   </div>
@@ -424,7 +415,7 @@ export default function TablesHistoryPage() {
                             {order.notes && (
                               <div className="border-t border-gray-700 pt-4">
                                 <h4 className="text-sm font-medium text-white mb-2">
-                                  Notes:
+                                  Note:
                                 </h4>
                                 <p className="text-sm text-gray-400">
                                   {order.notes}
@@ -434,9 +425,8 @@ export default function TablesHistoryPage() {
 
                             <div className="border-t border-gray-700 pt-4">
                               <div className="flex justify-between items-center font-medium text-white">
-                                <span>Order Total</span>
+                                <span>Total Comandă</span>
                                 <span>
-                                  $
                                   {Array.isArray(order.items) &&
                                     order.items
                                       .reduce(
@@ -444,7 +434,8 @@ export default function TablesHistoryPage() {
                                           sum + item.price * item.quantity,
                                         0
                                       )
-                                      .toFixed(2)}
+                                      .toFixed(2)}{' '}
+                                  RON
                                 </span>
                               </div>
                             </div>
@@ -454,9 +445,8 @@ export default function TablesHistoryPage() {
 
                     <div className="border-t border-[#31E981] pt-4">
                       <div className="flex justify-between items-center font-medium text-lg text-white">
-                        <span>Session Total</span>
+                        <span>Total Sesiune</span>
                         <span>
-                          $
                           {Array.isArray(session.orders) &&
                             session.orders
                               .reduce(
@@ -471,7 +461,8 @@ export default function TablesHistoryPage() {
                                     : 0),
                                 0
                               )
-                              .toFixed(2)}
+                              .toFixed(2)}{' '}
+                          RON
                         </span>
                       </div>
                     </div>
@@ -494,10 +485,10 @@ export default function TablesHistoryPage() {
                     />
                   </svg>
                   <p className="text-xl">
-                    There are no registered orders available for this table.
+                    Nu există comenzi înregistrate pentru această masă.
                   </p>
                   <p className="text-gray-400 mt-2">
-                    Orders will appear here once customers place them.
+                    Comenzile vor apărea aici după ce clienții le plasează.
                   </p>
                 </div>
               )}

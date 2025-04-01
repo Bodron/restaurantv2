@@ -45,11 +45,11 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      setError('Please select an image file')
+      setError('Vă rugăm să selectați o imagine')
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be less than 5MB')
+      setError('Imaginea trebuie să fie mai mică de 5MB')
       return
     }
     const reader = new FileReader()
@@ -74,13 +74,17 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
       setUploadProgress(90)
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.message || 'Failed to upload image')
+        throw new Error(errorData.message || 'Eroare la încărcarea imaginii')
       }
       const data = await response.json()
       setUploadProgress(100)
       return data.imageUrl
     } catch (error) {
-      setError(`Failed to upload image: ${error.message || 'Unknown error'}`)
+      setError(
+        `Eroare la încărcarea imaginii: ${
+          error.message || 'Eroare necunoscută'
+        }`
+      )
       return null
     } finally {
       setIsUploading(false)
@@ -111,10 +115,10 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
         setError('')
         handleClose()
       } else {
-        setError(data.message || 'Error creating menu item')
+        setError(data.message || 'Eroare la crearea produsului')
       }
     } catch (error) {
-      setError('Error processing menu item')
+      setError('Eroare la procesarea produsului')
     }
   }
 
@@ -139,7 +143,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
         onClick={handleOpen}
         className="inline-flex justify-center px-4 border shadow-sm text-sm text-white border-[#31E981] py-3 rounded-lg font-medium cursor-pointer"
       >
-        Add Menu Item
+        Adaugă Produs Nou
       </button>
       <Modal
         open={open}
@@ -154,7 +158,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
             component="h2"
             className="mb-4"
           >
-            Add Menu Item
+            Adaugă Produs Nou
           </Typography>
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -164,7 +168,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
           <form onSubmit={handleCreateMenuItem} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-white/60">
-                Menu
+                Meniu
                 <select
                   value={newMenuItem.menuId}
                   onChange={(e) => {
@@ -178,7 +182,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
                   required
                 >
                   <option className="text-black" value="">
-                    Select a menu
+                    Selectează un meniu
                   </option>
                   {menus.map((menu) => (
                     <option
@@ -194,7 +198,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-white/60">
-                Category
+                Categorie
                 <select
                   value={newMenuItem.categoryId}
                   onChange={(e) =>
@@ -208,7 +212,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
                   disabled={!newMenuItem.menuId}
                 >
                   <option className="text-black" value="">
-                    Select a category
+                    Selectează o categorie
                   </option>
                   {menus
                     .find((menu) => menu._id === newMenuItem.menuId)
@@ -226,7 +230,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-white/60">
-                Name
+                Nume
                 <input
                   type="text"
                   value={newMenuItem.name}
@@ -240,7 +244,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-white/60">
-                Description
+                Descriere
                 <textarea
                   value={newMenuItem.description}
                   onChange={(e) =>
@@ -255,7 +259,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-white/60">
-                Price
+                Preț
                 <input
                   type="number"
                   step="0.01"
@@ -273,7 +277,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-white/60">
-                Item Image
+                Imagine Produs
                 <div className="mt-1 flex items-center space-x-4">
                   <input
                     type="file"
@@ -287,7 +291,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
                   <div className="mt-2 relative w-32 h-32 overflow-hidden rounded-lg border border-gray-200">
                     <img
                       src={previewImage || newMenuItem.image}
-                      alt="Preview"
+                      alt="Previzualizare"
                       className="object-cover w-full h-full"
                     />
                     <button
@@ -314,7 +318,7 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
                       ></div>
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
-                      Uploading... {uploadProgress}%
+                      Se încarcă... {uploadProgress}%
                     </p>
                   </div>
                 )}
@@ -326,14 +330,14 @@ export default function AddMenuItemModal({ menus, onItemAdded }) {
                 className="inline-flex justify-center px-4 border shadow-sm text-sm text-white border-[#31E981] py-3 rounded-lg font-medium cursor-pointer"
                 disabled={isUploading}
               >
-                {isUploading ? 'Uploading...' : 'Add Menu Item'}
+                {isUploading ? 'Se încarcă...' : 'Adaugă Produs'}
               </button>
               <button
                 type="button"
                 onClick={resetForm}
                 className=" py-2 px-4 border border-gray-300 bg-black shadow-sm text-sm font-medium rounded-md text-white  cursor-pointer"
               >
-                Reset
+                Resetează
               </button>
             </div>
           </form>
