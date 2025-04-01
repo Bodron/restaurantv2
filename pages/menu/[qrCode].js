@@ -6,6 +6,7 @@ import {
   ShoppingCartIcon,
   ChevronLeftIcon,
   MagnifyingGlassIcon,
+  UserIcon,
 } from '@heroicons/react/24/outline'
 
 // Helper function to generate consistent background colors based on text
@@ -36,6 +37,8 @@ export default function CustomerMenu() {
   const [orderSuccess, setOrderSuccess] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [activeCategory, setActiveCategory] = useState(null)
+  const [guestName, setGuestName] = useState('')
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false)
 
   useEffect(() => {
     if (qrCode) {
@@ -136,6 +139,8 @@ export default function CustomerMenu() {
 
   const placeOrder = async () => {
     try {
+      setIsPlacingOrder(true)
+
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -145,6 +150,7 @@ export default function CustomerMenu() {
           tableId: table._id,
           items: cart,
           notes: orderNotes,
+          guestName: guestName.trim() || 'Guest', // Trimitem numele clientului dacă există
         }),
       })
 
@@ -155,8 +161,12 @@ export default function CustomerMenu() {
       setOrderSuccess(true)
       setCart([])
       setOrderNotes('')
+      setGuestName('')
+      setIsCartOpen(false)
     } catch (err) {
       setError('Failed to place order. Please try again.')
+    } finally {
+      setIsPlacingOrder(false)
     }
   }
 
@@ -226,7 +236,8 @@ export default function CustomerMenu() {
 
       {orderSuccess && (
         <div className="bg-green-100 text-green-800 px-4 py-3 mx-4 my-2 rounded-lg">
-          Order placed successfully! Your food will be prepared shortly.
+          Comanda a fost plasată cu succes! Mâncarea dumneavoastră va fi
+          pregătită în curând.
         </div>
       )}
 
@@ -290,17 +301,17 @@ export default function CustomerMenu() {
                         <h3 className="text-white font-medium">{item.name}</h3>
                         <div>
                           <div className="text-white text-right">
-                            ${item.price.toFixed(2)}
+                            {item.price.toFixed(2)} RON
                           </div>
                           {/* Only show discount if item has discountPercentage property */}
                           {item.discountPercentage > 0 && (
                             <>
                               <div className="text-gray-500 text-right line-through text-sm">
-                                $
                                 {(
                                   item.price /
                                   (1 - item.discountPercentage / 100)
-                                ).toFixed(2)}
+                                ).toFixed(2)}{' '}
+                                RON
                               </div>
                               <div className="border border-white/30 text-white/80 rounded-full text-xs px-2 py-1 mt-1 text-center">
                                 -{item.discountPercentage}%
@@ -321,7 +332,7 @@ export default function CustomerMenu() {
                       <div className="flex flex-wrap gap-1 mt-1">
                         {item.isSpicy && (
                           <span className="px-1.5 py-0.5 bg-red-900/50 text-red-400 text-xs rounded-full">
-                            Spicy
+                            Iute
                           </span>
                         )}
                         {item.isVegetarian && (
@@ -358,18 +369,18 @@ export default function CustomerMenu() {
         <div className="fixed bottom-0 left-0 right-0 bg-black/80 py-3 px-4 flex justify-between items-center z-20">
           <div>
             <p className="text-sm text-gray-400">
-              Your order ({cart.reduce((sum, item) => sum + item.quantity, 0)}{' '}
-              items)
+              Comanda ({cart.reduce((sum, item) => sum + item.quantity, 0)}{' '}
+              produse)
             </p>
             <p className="text-white font-bold">
-              ${calculateTotal().toFixed(2)}
+              {calculateTotal().toFixed(2)} RON
             </p>
           </div>
           <button
             onClick={toggleCart}
-            className=" text-white px-4 py-2 rounded-full font-medium"
+            className="bg-[#31E981] text-black px-4 py-2 rounded-full font-medium"
           >
-            View Cart
+            Vezi Coșul
           </button>
         </div>
       )}
@@ -382,7 +393,7 @@ export default function CustomerMenu() {
       >
         <div className="h-full flex flex-col">
           <div className="border-b border-gray-800 p-4 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-white">Your Order</h2>
+            <h2 className="text-xl font-bold text-white">Comanda Ta</h2>
             <button
               onClick={toggleCart}
               className="p-2 rounded-full hover:bg-gray-800"
@@ -394,7 +405,7 @@ export default function CustomerMenu() {
           {cart.length === 0 ? (
             <div className="flex-grow flex flex-col items-center justify-center p-6">
               <ShoppingCartIcon className="h-16 w-16 text-gray-600 mb-4" />
-              <p className="text-gray-400">Your cart is empty</p>
+              <p className="text-gray-400">Coșul tău este gol</p>
             </div>
           ) : (
             <>
@@ -442,7 +453,7 @@ export default function CustomerMenu() {
                       <div className="flex-1">
                         <p className="text-white font-medium">{item.name}</p>
                         <p className="text-gray-400 text-sm">
-                          ${item.price.toFixed(2)}
+                          {item.price.toFixed(2)} RON
                         </p>
                         {item.notes && (
                           <p className="text-gray-500 text-xs">{item.notes}</p>
@@ -471,14 +482,37 @@ export default function CustomerMenu() {
                   </div>
                 ))}
 
+                {/* Guest Name Field */}
+                <div className="mt-6 mb-2">
+                  <label className="block text-white text-sm font-medium mb-2">
+                    <div className="flex items-center mb-1">
+                      <UserIcon className="h-4 w-4 mr-1" />
+                      <span>Nume (opțional)</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      placeholder="Introdu numele tău"
+                      className="w-full p-3 bg-black text-white border border-gray-700 rounded-lg"
+                    />
+                  </label>
+                  <p className="text-gray-500 text-xs mt-1">
+                    Numele ajută la identificarea comenzii tale la restaurant
+                  </p>
+                </div>
+
                 <div className="mt-4">
-                  <textarea
-                    placeholder="Add notes to your order..."
-                    value={orderNotes}
-                    onChange={(e) => setOrderNotes(e.target.value)}
-                    className="w-full p-3 bg-black text-white border border-gray-700 rounded-lg resize-none"
-                    rows="3"
-                  />
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Note pentru comandă
+                    <textarea
+                      placeholder="Adaugă notițe pentru comanda ta..."
+                      value={orderNotes}
+                      onChange={(e) => setOrderNotes(e.target.value)}
+                      className="w-full p-3 bg-black text-white border border-gray-700 rounded-lg resize-none mt-1"
+                      rows="3"
+                    />
+                  </label>
                 </div>
               </div>
 
@@ -486,14 +520,26 @@ export default function CustomerMenu() {
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-400">Subtotal:</span>
                   <span className="text-white">
-                    ${calculateTotal().toFixed(2)}
+                    {calculateTotal().toFixed(2)} RON
                   </span>
                 </div>
                 <button
                   onClick={placeOrder}
-                  className="w-full border border-[#31E981] text-white py-3 rounded-lg font-medium"
+                  disabled={isPlacingOrder}
+                  className={`w-full ${
+                    isPlacingOrder ? 'bg-gray-700' : 'bg-[#31E981]'
+                  } text-black py-3 rounded-lg font-medium relative`}
                 >
-                  Place Order
+                  {isPlacingOrder ? (
+                    <>
+                      <span className="opacity-0">Plasează Comanda</span>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                      </div>
+                    </>
+                  ) : (
+                    'Plasează Comanda'
+                  )}
                 </button>
               </div>
             </>

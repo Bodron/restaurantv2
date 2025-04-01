@@ -7,18 +7,19 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]'
 
 export default async function handler(req, res) {
-  const session = await getServerSession(req, res, authOptions)
-  if (!session) {
-    return res.status(401).json({ message: 'Not authenticated' })
-  }
-
   await dbConnect()
 
   switch (req.method) {
     case 'GET':
+      // Pentru GET avem nevoie de autentificare (pentru dashboard-ul administratorului)
+      const getSession = await getServerSession(req, res, authOptions)
+      if (!getSession) {
+        return res.status(401).json({ message: 'Not authenticated' })
+      }
+
       try {
         const orders = await Order.find({
-          restaurant: session.user.restaurantId,
+          restaurant: getSession.user.restaurantId,
         })
           .populate('table')
           .populate('items.menuItem')
@@ -44,6 +45,23 @@ export default async function handler(req, res) {
         const table = await Table.findById(tableId)
         if (!table) {
           return res.status(404).json({ message: 'Table not found' })
+        }
+
+        // Verifică dacă este o comandă cu QR code și dacă masa este activă (are un cod QR valid)
+        if (!table.qrCode) {
+          // Dacă masa nu are QR code, înseamnă că comandă vine din dashboard
+          // și necesită autentificare
+          const postSession = await getServerSession(req, res, authOptions)
+          if (!postSession) {
+            return res.status(401).json({ message: 'Not authenticated' })
+          }
+
+          // Verifică dacă utilizatorul autentificat aparține restaurantului mesei
+          if (postSession.user.restaurantId !== table.restaurant.toString()) {
+            return res
+              .status(403)
+              .json({ message: 'Not authorized for this restaurant' })
+          }
         }
 
         // Get or create active table session
@@ -84,7 +102,7 @@ export default async function handler(req, res) {
           0
         )
 
-        // Create order
+        // Create order - pentru guest adăugăm un flag isGuestOrder
         const order = await Order.create({
           table: tableId,
           restaurant: table.restaurant,
@@ -93,6 +111,7 @@ export default async function handler(req, res) {
           status: 'pending',
           notes,
           total,
+          isGuestOrder: !req.body.userId, // Marcăm comanda ca fiind de la un guest dacă nu avem userId
         })
 
         // Update table session
