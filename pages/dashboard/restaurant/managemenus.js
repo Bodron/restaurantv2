@@ -311,13 +311,13 @@ export default function ManageMenusPage() {
 
       {!previewMode ? (
         <>
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium mb-4 text-black">
+          <div className="bg-black/50 shadow rounded-lg p-6">
+            <h2 className="text-lg font-medium mb-4 text-white/80">
               {isEditMode ? 'Edit Menu' : 'Create New Menu'}
             </h2>
             <form onSubmit={handleCreateMenu} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-white/80">
                   Menu Name
                   <input
                     type="text"
@@ -325,7 +325,7 @@ export default function ManageMenusPage() {
                     onChange={(e) =>
                       setNewMenu({ ...newMenu, name: e.target.value })
                     }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border border-white/80 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     required
                   />
                 </label>
@@ -340,13 +340,13 @@ export default function ManageMenusPage() {
                     }
                     className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
-                  <span className="ml-2">Set as active menu</span>
+                  <span className="ml-2 text-white/80">Set as active menu</span>
                 </label>
               </div>
               <div className="flex space-x-2">
                 <button
                   type="submit"
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex justify-center py-2 px-4  shadow-sm text-sm font-medium rounded-md text-white bg-black   border border-white/80"
                 >
                   {isEditMode ? 'Update Menu' : 'Create Menu'}
                 </button>
@@ -363,13 +363,13 @@ export default function ManageMenusPage() {
             </form>
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium mb-4 text-black">
+          <div className="bg-black/50 shadow rounded-lg p-6">
+            <h2 className="text-lg font-medium mb-4 text-white/80">
               {isEditingCategory ? 'Edit Category' : 'Add Category to Menu'}
             </h2>
             <form onSubmit={handleCreateCategory} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-white/80">
                   Select Menu
                   <select
                     value={selectedMenu?._id || ''}
@@ -378,13 +378,19 @@ export default function ManageMenusPage() {
                       setSelectedMenu(menu)
                       setNewCategory({ ...newCategory, menuId: e.target.value })
                     }}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border border-white/80 p-2 shadow-sm sm:text-sm "
                     required
                     disabled={isEditingCategory}
                   >
-                    <option value="">Select a menu</option>
+                    <option className="text-black" value="">
+                      Select a menu
+                    </option>
                     {menus.map((menu) => (
-                      <option key={menu._id} value={menu._id}>
+                      <option
+                        className="text-black"
+                        key={menu._id}
+                        value={menu._id}
+                      >
                         {menu.name}
                       </option>
                     ))}
@@ -392,7 +398,7 @@ export default function ManageMenusPage() {
                 </label>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-white/80">
                   Category Name
                   <input
                     type="text"
@@ -400,7 +406,7 @@ export default function ManageMenusPage() {
                     onChange={(e) =>
                       setNewCategory({ ...newCategory, name: e.target.value })
                     }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border border-white/80 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     required
                   />
                 </label>
@@ -408,7 +414,7 @@ export default function ManageMenusPage() {
               <div className="flex space-x-2">
                 <button
                   type="submit"
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex justify-center py-2 px-4  shadow-sm text-sm font-medium rounded-md text-white bg-black   border border-white/80"
                 >
                   {isEditingCategory ? 'Update Category' : 'Add Category'}
                 </button>
@@ -425,15 +431,15 @@ export default function ManageMenusPage() {
             </form>
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium mb-4 text-black">
+          <div className="bg-black/50 shadow rounded-lg p-6">
+            <h2 className="text-lg font-medium mb-4 text-white/80">
               Existing Menus
             </h2>
             <div className="space-y-4">
               {menus.map((menu) => (
                 <div key={menu._id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-black">
+                    <h3 className="text-lg font-medium text-white/80">
                       {menu.name}
                     </h3>
                     <div className="flex items-center space-x-2">
@@ -457,14 +463,14 @@ export default function ManageMenusPage() {
                       )}
                       <button
                         onClick={() => handlePreviewMenu(menu)}
-                        className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200"
+                        className="px-3 py-1 text-sm border border-white/60 rounded-md  cursor-pointer"
                         disabled={isDeleting}
                       >
                         Preview Menu
                       </button>
                       <button
                         onClick={() => handleEditMenu(menu)}
-                        className="p-1.5 bg-indigo-50 rounded-full hover:bg-indigo-100 text-indigo-600 transition-colors"
+                        className="p-1 rounded-full  text-white/60 transition-colors cursor-pointer"
                         title="Edit menu"
                         disabled={isDeleting}
                       >
@@ -472,7 +478,7 @@ export default function ManageMenusPage() {
                       </button>
                       <button
                         onClick={() => handleDeleteMenu(menu._id)}
-                        className="p-1.5 bg-red-50 rounded-full hover:bg-red-100 text-red-600 transition-colors"
+                        className="p-1  rounded-full  text-red-600/90 transition-colors"
                         title="Delete menu"
                         disabled={isDeleting || menu.isActive}
                       >
@@ -481,34 +487,34 @@ export default function ManageMenusPage() {
                     </div>
                   </div>
                   <div className="pl-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">
+                    <h4 className="text-sm font-medium text-white/80 mb-2">
                       Categories:
                     </h4>
                     <ul className="list-disc pl-5 space-y-1">
                       {menu.categories?.map((category) => (
                         <li
                           key={category._id}
-                          className="text-sm text-gray-600 flex items-center justify-between group"
+                          className="text-sm text-white/80 flex items-center justify-between group"
                         >
                           <span>{category.name}</span>
                           <div className="hidden group-hover:flex space-x-2">
                             <button
                               onClick={() => handleEditCategory(menu, category)}
-                              className="p-1 bg-indigo-50 rounded-full hover:bg-indigo-100 text-indigo-600 transition-colors"
+                              className="p-1 rounded-full  text-white/60 transition-colors cursor-pointer"
                               title="Edit category"
                               disabled={isDeleting}
                             >
-                              <PencilIcon className="h-3 w-3" />
+                              <PencilIcon className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() =>
                                 handleDeleteCategory(menu._id, category._id)
                               }
-                              className="p-1 bg-red-50 rounded-full hover:bg-red-100 text-red-600 transition-colors"
+                              className="p-1  rounded-full  text-red-600/90 transition-colors"
                               title="Delete category"
                               disabled={isDeleting}
                             >
-                              <TrashIcon className="h-3 w-3" />
+                              <TrashIcon className="h-4 w-4" />
                             </button>
                           </div>
                         </li>
@@ -537,20 +543,20 @@ export default function ManageMenusPage() {
                   })
                   setPreviewMode(false)
                 }}
-                className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200"
+                className="px-4 py-2 bg-black text-white/80 rounded-md "
               >
                 Edit Menu
               </button>
               <button
                 onClick={() => setPreviewMode(false)}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                className="px-4 py-2  text-white/80 rounded-md border border-white/80"
               >
                 Back to Management
               </button>
             </div>
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-black/80 shadow rounded-lg p-6">
             <div className="flex flex-wrap items-center mb-6">
               <div className="flex-grow overflow-x-auto pb-2">
                 <div className="flex space-x-2">
@@ -558,10 +564,10 @@ export default function ManageMenusPage() {
                     <button
                       key={category._id}
                       onClick={() => setSelectedCategory(category)}
-                      className={`px-4 py-2 rounded-md flex items-center ${
+                      className={`px-4 py-2 rounded-md flex items-center cursor-pointer ${
                         selectedCategory?._id === category._id
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-black text-white border border-white/80'
+                          : ' text-whitre/80 '
                       }`}
                     >
                       <span>{category.name}</span>
@@ -576,10 +582,10 @@ export default function ManageMenusPage() {
                               )
                               setPreviewMode(false)
                             }}
-                            className="p-1 bg-white/20 rounded-full hover:bg-white/30 text-white transition-colors"
+                            className="p-1  rounded-full text-white transition-colors"
                             title="Edit category"
                           >
-                            <PencilIcon className="h-3 w-3" />
+                            <PencilIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={(e) => {
@@ -610,10 +616,10 @@ export default function ManageMenusPage() {
                                 }
                               }
                             }}
-                            className="p-1 ml-1 bg-red-500/20 rounded-full hover:bg-red-500/30 text-white transition-colors"
+                            className="p-1 ml-1 text-red-600/80 rounded-full   transition-colors"
                             title="Delete category"
                           >
-                            <TrashIcon className="h-3 w-3" />
+                            <TrashIcon className="h-4 w-4" />
                           </button>
                         </div>
                       )}
@@ -631,7 +637,7 @@ export default function ManageMenusPage() {
                     })
                     setPreviewMode(false)
                   }}
-                  className="px-4 py-2 text-sm bg-green-500 text-white rounded-md hover:bg-green-600"
+                  className="px-4 py-2 text-sm border  border-green-500 text-white/80 rounded-md hover:bg-green-600"
                 >
                   Add New Category
                 </button>
@@ -644,14 +650,6 @@ export default function ManageMenusPage() {
                   <h2 className="text-lg font-medium text-black">
                     {selectedCategory.name} Items
                   </h2>
-                  <button
-                    onClick={() => {
-                      router.push('/dashboard/restaurant/menuitems')
-                    }}
-                    className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200"
-                  >
-                    Manage Menu Items
-                  </button>
                 </div>
 
                 {getMenuItemsForCategory(selectedCategory._id).length === 0 ? (
@@ -685,12 +683,12 @@ export default function ManageMenusPage() {
                               <h3 className="text-lg font-medium text-black">
                                 {item.name}
                               </h3>
-                              <p className="text-sm text-gray-500 mt-1">
+                              <p className="text-sm text-white/80 mt-1">
                                 {item.description}
                               </p>
                             </div>
-                            <span className="text-lg font-semibold text-indigo-600">
-                              ${item.price.toFixed(2)}
+                            <span className="text-lg font-semibold text-white/80">
+                              {item.price.toFixed(2)}RON
                             </span>
                           </div>
                           <div className="flex flex-wrap mt-2 gap-1">

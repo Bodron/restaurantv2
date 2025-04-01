@@ -81,51 +81,54 @@ export default function TablesPage() {
         </div>
       )}
 
-<div className="bg-transparent rounded-lg w-fit shadow pY-6 space-y-4">
-  <h2 className="text-lg font-medium text-[#31E981]">Add New Table</h2>
-  <form onSubmit={handleCreateTable} className="space-y-4">
-    <div className="flex flex-row justify-between items-center gap-6 ">
-      <div className="flex flex-col w-1/2">
-        <label className="block text-sm font-medium text-white">Table Number</label>
-        <input
-          type="number"
-          value={newTable.tableNumber}
-          onChange={(e) =>
-            setNewTable({
-              ...newTable,
-              tableNumber: e.target.value,
-            })
-          }
-          className="mt-1 block w-full bg-stone-800 p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          required
-        />
+      <div className="bg-transparent rounded-lg w-fit shadow pY-6 space-y-4">
+        <h2 className="text-lg font-medium text-[#31E981]">Add New Table</h2>
+        <form onSubmit={handleCreateTable} className="space-y-4">
+          <div className="flex flex-row justify-between items-center gap-6 ">
+            <div className="flex flex-col w-1/2">
+              <label className="block text-sm font-medium text-white">
+                Table Number
+              </label>
+              <input
+                type="number"
+                value={newTable.tableNumber}
+                onChange={(e) =>
+                  setNewTable({
+                    ...newTable,
+                    tableNumber: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full bg-stone-800 p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                required
+              />
+            </div>
+            <div className="flex flex-col w-1/2">
+              <label className="block text-sm font-medium text-white">
+                Capacity
+              </label>
+              <input
+                type="number"
+                value={newTable.capacity}
+                onChange={(e) =>
+                  setNewTable({ ...newTable, capacity: e.target.value })
+                }
+                className="mt-1 block w-full bg-stone-800 p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                required
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#35605a] transition-all duration-300 ease-in cursor-pointer hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Add Table
+          </button>
+        </form>
       </div>
-      <div className="flex flex-col w-1/2">
-        <label className="block text-sm font-medium text-white">Capacity</label>
-        <input
-          type="number"
-          value={newTable.capacity}
-          onChange={(e) =>
-            setNewTable({ ...newTable, capacity: e.target.value })
-          }
-          className="mt-1 block w-full bg-stone-800 p-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          required
-        />
-      </div>
-    </div>
-    <button
-      type="submit"
-      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#35605a] transition-all duration-300 ease-in cursor-pointer hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-    >
-      Add Table
-    </button>
-  </form>
-</div>
 
-<h2 className="text-lg font-medium text-[#31E981]  mt-16">All Tables</h2>
+      <h2 className="text-lg font-medium text-[#31E981]  mt-16">All Tables</h2>
 
       <div className="grid grid-cols-4 gap-6">
-        
         {tables?.map((table) => (
           <div
             key={table._id}
@@ -136,9 +139,7 @@ export default function TablesPage() {
                 <h3 className="text-lg font-medium text-[#31E981]">
                   Table {table.tableNumber}
                 </h3>
-                <p className="text-sm text-white">
-                  Capacity: {table.capacity}
-                </p>
+                <p className="text-sm text-white">Capacity: {table.capacity}</p>
                 <p className="text-sm text-white">Status: {table.status}</p>
               </div>
               <div className="flex items-center space-x-4">
@@ -161,7 +162,7 @@ export default function TablesPage() {
               />
             </div>
 
-           {/*  <div className="border-t border-[#31E981] pt-4">
+            {/*  <div className="border-t border-[#31E981] pt-4">
               <div className="flex justify-between items-center font-medium text-lg">
                 <span className="text-white">Table QR Code</span>
                 <span className="text-white">

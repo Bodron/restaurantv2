@@ -94,12 +94,10 @@ export default function TablesHistoryPage() {
       <div className="flex items-center justify-center h-full">Loading...</div>
     )
   }
-  console.log(tables)
+  console.log('CONSOLE LOG TABLEORDER', tableOrders)
   return (
-    <div className="space-y-6 p-6">
-      <h2 className="text-2xl font-bold text-white mb-6">
-           Tables 
-          </h2>
+    <div className="space-y-6 p-6 min-w-[80%]">
+      <h2 className="text-2xl font-bold text-white mb-6">Tables</h2>
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
@@ -278,10 +276,12 @@ export default function TablesHistoryPage() {
                   <div className="flex justify-between items-center font-medium text-lg text-white">
                     <span>Session Total</span>
                     <span>
-                      ${session.orders
+                      $
+                      {session.orders
                         .reduce(
                           (sum, order) =>
-                            sum + order.items.reduce(
+                            sum +
+                            order.items.reduce(
                               (itemSum, item) =>
                                 itemSum + item.price * item.quantity,
                               0
@@ -294,8 +294,8 @@ export default function TablesHistoryPage() {
                 </div>
               </div>
             ))}
-                              {tableOrders.length <1 && 'There are no registered orders available for this table.'}
-
+            {tableOrders.length < 1 &&
+              'There are no registered orders available for this table.'}
           </div>
         </div>
       )}
