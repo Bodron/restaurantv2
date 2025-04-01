@@ -202,39 +202,12 @@ export default function Sidebar() {
           href: '/dashboard/orders/tables-history',
           icon: TableCellsIcon,
         },
-        {
-          name: 'Order History',
-          href: '/dashboard/orders/history',
-          icon: ClockIcon,
-        },
-        {
-          name: 'Statistics',
-          href: '/dashboard/orders/statistics',
-          icon: DocumentChartBarIcon,
-        },
       ],
     },
     {
-      name: 'Kitchen',
-      href: '/dashboard/kitchen',
-      icon: FireIcon,
-      children: [
-        {
-          name: 'Queue',
-          href: '/dashboard/kitchen/queue',
-          icon: ListBulletIcon,
-        },
-        {
-          name: 'Preparation Times',
-          href: '/dashboard/kitchen/prep-times',
-          icon: ClockIcon,
-        },
-        {
-          name: 'Inventory',
-          href: '/dashboard/kitchen/inventory',
-          icon: CubeIcon,
-        },
-      ],
+      name: 'Analytics',
+      href: '/statistics',
+      icon: ChartBarIcon,
     },
   ]
 

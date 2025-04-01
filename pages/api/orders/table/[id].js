@@ -1,5 +1,6 @@
 import dbConnect from '../../../../lib/db'
 import TableSession from '../../../../lib/models/TableSession'
+import Order from '../../../../lib/models/Order'
 import { getSession } from 'next-auth/react'
 
 export default async function handler(req, res) {
@@ -18,55 +19,79 @@ export default async function handler(req, res) {
   try {
     await dbConnect()
 
-    // Find all sessions for the table, populate orders and their items
-    const tableSessions = await TableSession.find({ table: id })
+    // Check if table exists (this step helps with debugging)
+    console.log('Looking for sessions with table ID:', id)
+
+    // Try a direct approach first - find all orders for this table
+    const orders = await Order.find({ table: id })
+      .populate('tableSession')
       .populate({
-        path: 'orders',
-        populate: {
-          path: 'items.menuItem',
-          model: 'MenuItem',
-          select: 'name price',
-        },
+        path: 'items.menuItem',
+        select: 'name price image isVegan isVegetarian isSpicy',
       })
-      .sort({ startTime: -1 }) // Sort by start time, newest first
+      .sort({ createdAt: -1 })
 
-    console.log('Found sessions:', tableSessions.length)
+    console.log(`Found ${orders.length} orders directly for table ${id}`)
 
-    // Transform the data to include item details
-    const transformedSessions = tableSessions.map((session) => {
-      const sessionObj = session.toObject()
-      console.log('Session orders:', sessionObj.orders?.length || 0)
+    // Group orders by tableSession
+    const sessionMap = {}
 
-      // Transform orders
-      sessionObj.orders =
-        sessionObj.orders?.map((order) => ({
-          _id: order._id,
-          status: order.status,
-          createdAt: order.createdAt,
-          items: order.items.map((item) => ({
-            id: item.menuItem?._id,
-            name: item.menuItem?.name,
-            price: item.price || item.menuItem?.price,
-            quantity: item.quantity,
-          })),
-        })) || []
+    orders.forEach((order) => {
+      const sessionId = order.tableSession?._id?.toString()
+      if (!sessionId) return
 
-      return {
-        _id: sessionObj._id,
-        status: sessionObj.status,
-        startTime: sessionObj.startTime,
-        endTime: sessionObj.endTime,
-        orders: sessionObj.orders,
+      if (!sessionMap[sessionId]) {
+        sessionMap[sessionId] = {
+          _id: sessionId,
+          status: order.tableSession.status || 'unknown',
+          startTime: order.tableSession.startTime || order.createdAt,
+          endTime: order.tableSession.endTime,
+          orders: [],
+        }
       }
+
+      // Transform order
+      sessionMap[sessionId].orders.push({
+        _id: order._id,
+        status: order.status,
+        createdAt: order.createdAt,
+        items: order.items.map((item) => ({
+          id: item.menuItem?._id,
+          name: item.menuItem?.name,
+          price: item.price || item.menuItem?.price,
+          quantity: item.quantity,
+          image: item.menuItem?.image,
+          isVegan: item.menuItem?.isVegan,
+          isVegetarian: item.menuItem?.isVegetarian,
+          isSpicy: item.menuItem?.isSpicy,
+        })),
+      })
     })
 
+    // Convert the session map to an array
+    const transformedSessions = Object.values(sessionMap)
+
     console.log(
-      'Transformed sessions:',
-      JSON.stringify(transformedSessions, null, 2)
+      'Response contains',
+      transformedSessions.length,
+      'sessions with',
+      transformedSessions.reduce(
+        (sum, session) => sum + (session.orders?.length || 0),
+        0
+      ),
+      'total orders'
     )
+
+    // Sort the sessions by start time, newest first
+    transformedSessions.sort(
+      (a, b) => new Date(b.startTime) - new Date(a.startTime)
+    )
+
     res.status(200).json(transformedSessions)
   } catch (error) {
     console.error('Error fetching table orders:', error)
-    res.status(500).json({ message: 'Error fetching table orders' })
+    res
+      .status(500)
+      .json({ message: `Error fetching table orders: ${error.message}` })
   }
 }
