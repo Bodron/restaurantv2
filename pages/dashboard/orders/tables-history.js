@@ -353,7 +353,7 @@ export default function TablesHistoryPage() {
                             }`}
                           >
                             {newOrderIds.has(order._id) && (
-                              <div className="absolute top-[-10px] right-2 bg-[#31E981] text-black px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                              <div className="absolute top-[20px] right-2 bg-[#31E981] text-black px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                                 Comandă Nouă!
                               </div>
                             )}
