@@ -210,7 +210,7 @@ export default function OrdersManagementPage() {
         </div>
       )}
 
-      {hasNewOrders && (
+      {/*    {hasNewOrders && (
         <div
           onClick={handleNotificationClick}
           className="fixed top-4 right-4 bg-[#31E981] text-black px-4 py-2 rounded-full flex items-center space-x-2 cursor-pointer shadow-lg hover:bg-[#2ad374] transition-colors"
@@ -218,7 +218,7 @@ export default function OrdersManagementPage() {
           <BellIcon className="h-5 w-5" />
           <span>Comenzi noi!</span>
         </div>
-      )}
+      )} */}
 
       <div className="grid grid-cols-1 gap-6">
         {tableSessions.map((session) => (
