@@ -26,6 +26,7 @@ export default function TablesHistoryPage() {
   const [tableOrders, setTableOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [newOrderIds, setNewOrderIds] = useState(new Set())
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -35,6 +36,22 @@ export default function TablesHistoryPage() {
       fetchTables()
     }
   }, [status])
+
+  // Add auto-refresh effect when a table is selected
+  useEffect(() => {
+    if (selectedTable) {
+      // Initial fetch
+      fetchTableOrders(selectedTable._id)
+
+      // Set up interval for real-time updates
+      const interval = setInterval(() => {
+        fetchTableOrders(selectedTable._id)
+      }, 5000)
+
+      // Cleanup interval on unmount or when selected table changes
+      return () => clearInterval(interval)
+    }
+  }, [selectedTable])
 
   const fetchTables = async () => {
     try {
@@ -50,8 +67,10 @@ export default function TablesHistoryPage() {
 
   const fetchTableOrders = async (tableId) => {
     try {
-      console.log('Se încarcă comenzile pentru masa:', tableId)
-      setLoading(true)
+      // Don't show loading state on auto-refresh
+      if (loading) {
+        setLoading(true)
+      }
       setError('')
 
       const res = await fetch(`/api/orders/table/${tableId}`)
@@ -62,6 +81,35 @@ export default function TablesHistoryPage() {
       }
 
       const data = await res.json()
+
+      // Get the seen orders from localStorage
+      const seenOrders = JSON.parse(localStorage.getItem('seenOrders') || '{}')
+      const currentTime = new Date().getTime()
+
+      // Find new orders (orders from last 30 seconds that haven't been seen)
+      const newOrders = []
+      data.forEach((session) => {
+        session.orders.forEach((order) => {
+          const orderTime = new Date(order.createdAt).getTime()
+          const timeDiff = currentTime - orderTime
+          const isNew = timeDiff <= 30000 && !seenOrders[order._id]
+
+          if (isNew) {
+            // Mark this order as seen
+            seenOrders[order._id] = currentTime
+            newOrders.push(order._id)
+          }
+        })
+      })
+
+      // Update localStorage with seen orders
+      localStorage.setItem('seenOrders', JSON.stringify(seenOrders))
+
+      // Update state if we found new orders
+      if (newOrders.length > 0) {
+        setNewOrderIds(new Set(newOrders))
+      }
+
       console.log('Structura datelor primite pentru comenzile mesei:', {
         isArray: Array.isArray(data),
         length: Array.isArray(data) ? data.length : 'N/A',
@@ -90,6 +138,16 @@ export default function TablesHistoryPage() {
       setLoading(false)
     }
   }
+
+  // Clear new order indicators after 30 seconds
+  useEffect(() => {
+    if (newOrderIds.size > 0) {
+      const timer = setTimeout(() => {
+        setNewOrderIds(new Set())
+      }, 30000)
+      return () => clearTimeout(timer)
+    }
+  }, [newOrderIds])
 
   const handleTableSelect = async (table) => {
     console.log('Masă selectată:', table)
@@ -288,8 +346,18 @@ export default function TablesHistoryPage() {
                         session.orders.map((order) => (
                           <div
                             key={order._id}
-                            className="bg-black/80 rounded-lg py-5 px-5 space-y-5"
+                            className={`bg-black/80 rounded-lg py-5 px-5 space-y-5 relative ${
+                              newOrderIds.has(order._id)
+                                ? 'bg-[#31E981]/10'
+                                : ''
+                            }`}
                           >
+                            {newOrderIds.has(order._id) && (
+                              <div className="absolute top-[-20px] right-2 bg-[#31E981] text-black px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                                Comandă Nouă!
+                              </div>
+                            )}
+
                             <div className="flex justify-between items-start gap-10">
                               <div>
                                 <h4 className="text-md font-medium text-white">

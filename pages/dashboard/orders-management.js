@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import { BellIcon } from '@heroicons/react/24/outline'
 
 // Helper function to generate consistent background colors based on text
 const getColorForText = (text) => {
@@ -23,6 +24,8 @@ export default function OrdersManagementPage() {
   const [tableSessions, setTableSessions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [hasNewOrders, setHasNewOrders] = useState(false)
+  const [newOrderIds, setNewOrderIds] = useState(new Set())
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -30,6 +33,8 @@ export default function OrdersManagementPage() {
     }
     if (status === 'authenticated') {
       fetchOrders()
+      const interval = setInterval(fetchOrders, 5000)
+      return () => clearInterval(interval)
     }
   }, [status])
 
@@ -37,6 +42,33 @@ export default function OrdersManagementPage() {
     try {
       const res = await fetch('/api/orders')
       const data = await res.json()
+
+      // Get the seen orders from localStorage
+      const seenOrders = JSON.parse(localStorage.getItem('seenOrders') || '{}')
+      const currentTime = new Date().getTime()
+
+      // Find new orders (orders from last 30 seconds that haven't been seen)
+      const newOrders = data.filter((order) => {
+        const orderTime = new Date(order.createdAt).getTime()
+        const timeDiff = currentTime - orderTime
+        const isNew = timeDiff <= 30000 && !seenOrders[order._id]
+
+        if (isNew) {
+          // Mark this order as seen
+          seenOrders[order._id] = currentTime
+        }
+
+        return isNew
+      })
+
+      // Update localStorage with seen orders
+      localStorage.setItem('seenOrders', JSON.stringify(seenOrders))
+
+      // Update state if we found new orders
+      if (newOrders.length > 0) {
+        setHasNewOrders(true)
+        setNewOrderIds(new Set(newOrders.map((order) => order._id)))
+      }
 
       // Group orders by table session
       const groupedOrders = data.reduce((groups, order) => {
@@ -50,8 +82,15 @@ export default function OrdersManagementPage() {
             endTime: order.tableSession.endTime,
             orders: [],
             totalAmount: 0,
+            hasNewOrder: false,
           }
         }
+
+        // Check if this order is new
+        if (newOrders.some((newOrder) => newOrder._id === order._id)) {
+          groups[sessionId].hasNewOrder = true
+        }
+
         groups[sessionId].orders.push(order)
         groups[sessionId].totalAmount += order.items.reduce(
           (sum, item) => sum + item.price * item.quantity,
@@ -67,6 +106,17 @@ export default function OrdersManagementPage() {
       setLoading(false)
     }
   }
+
+  // Clear new order indicators after 30 seconds
+  useEffect(() => {
+    if (newOrderIds.size > 0) {
+      const timer = setTimeout(() => {
+        setNewOrderIds(new Set())
+        setHasNewOrders(false)
+      }, 30000)
+      return () => clearTimeout(timer)
+    }
+  }, [newOrderIds])
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -110,6 +160,12 @@ export default function OrdersManagementPage() {
     }
   }
 
+  const handleNotificationClick = () => {
+    setHasNewOrders(false)
+    // Scroll to top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('ro-RO')
   }
@@ -141,7 +197,7 @@ export default function OrdersManagementPage() {
           .fallback-image {
             display: flex;
             align-items: center;
-            justify-center;
+            justify-content: center;
             width: 100%;
             height: 100%;
           }
@@ -154,11 +210,23 @@ export default function OrdersManagementPage() {
         </div>
       )}
 
+      {hasNewOrders && (
+        <div
+          onClick={handleNotificationClick}
+          className="fixed top-4 right-4 bg-[#31E981] text-black px-4 py-2 rounded-full flex items-center space-x-2 cursor-pointer shadow-lg hover:bg-[#2ad374] transition-colors"
+        >
+          <BellIcon className="h-5 w-5" />
+          <span>Comenzi noi!</span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-6">
         {tableSessions.map((session) => (
           <div
             key={session.sessionId}
-            className="bg-black rounded-lg w-full border-2 border-[#35605a] shadow p-6 space-y-4"
+            className={`bg-black rounded-lg w-full border-2 ${
+              session.hasNewOrder ? 'border-[#31E981]' : 'border-[#35605a]'
+            } shadow p-6 space-y-4`}
           >
             <div className="flex justify-between items-start">
               <div>
@@ -197,7 +265,17 @@ export default function OrdersManagementPage() {
 
             <div className="space-y-10">
               {session.orders.map((order) => (
-                <div key={order._id} className="rounded-lg py-5 px-5 space-y-5">
+                <div
+                  key={order._id}
+                  className={`rounded-lg py-5 px-5 space-y-5 relative ${
+                    newOrderIds.has(order._id) ? 'bg-[#31E981]/10' : ''
+                  }`}
+                >
+                  {newOrderIds.has(order._id) && (
+                    <div className="absolute top-14 right-2 bg-[#31E981] text-black px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                      Comandă Nouă!
+                    </div>
+                  )}
                   <div className="flex justify-between items-start gap-10">
                     <div>
                       <h4 className="text-md font-medium text-white">
