@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { QRCodeSVG as QRCode } from 'qrcode.react'
@@ -10,6 +10,7 @@ export default function TablesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [newTable, setNewTable] = useState({ tableNumber: '', capacity: 4 })
+  const qrCodeRefs = useRef({})
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -65,6 +66,42 @@ export default function TablesPage() {
     } catch (error) {
       setError('Eroare la crearea mesei')
     }
+  }
+
+  const downloadQrCode = (tableId, tableNumber) => {
+    if (!qrCodeRefs.current[tableId]) return
+
+    const svg = qrCodeRefs.current[tableId]
+    const svgData = new XMLSerializer().serializeToString(svg)
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+
+    img.onload = () => {
+      // Set canvas size with additional space for table number text
+      canvas.width = img.width
+      canvas.height = img.height + 40 // Extra space for text
+
+      // Draw QR code
+      ctx.fillStyle = 'white'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0)
+
+      // Draw table number text
+      ctx.font = 'bold 24px Arial'
+      ctx.fillStyle = 'black'
+      ctx.textAlign = 'center'
+      ctx.fillText(`Masa ${tableNumber}`, canvas.width / 2, img.height + 30)
+
+      // Convert to data URL and initiate download
+      const pngFile = canvas.toDataURL('image/png')
+      const downloadLink = document.createElement('a')
+      downloadLink.download = `masa_${tableNumber}_qr.png`
+      downloadLink.href = pngFile
+      downloadLink.click()
+    }
+
+    img.src = 'data:image/svg+xml;base64,' + btoa(svgData)
   }
 
   if (status === 'loading' || loading) {
@@ -151,10 +188,10 @@ export default function TablesPage() {
               </div>
               <div className="flex items-center space-x-4">
                 <button
-                  onClick={() => window.print()}
+                  onClick={() => downloadQrCode(table._id, table.tableNumber)}
                   className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200 cursor-pointer"
                 >
-                  Printează Cod QR
+                  Descarcă Cod QR
                 </button>
               </div>
             </div>
@@ -166,6 +203,11 @@ export default function TablesPage() {
                 }/menu/${table.qrCode}`}
                 size={200}
                 level="H"
+                ref={(ref) => {
+                  if (ref) {
+                    qrCodeRefs.current[table._id] = ref
+                  }
+                }}
               />
             </div>
           </div>

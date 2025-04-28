@@ -27,6 +27,7 @@ export default function TablesHistoryPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [newOrderIds, setNewOrderIds] = useState(new Set())
+  const [tableOrderCounts, setTableOrderCounts] = useState({})
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -53,15 +54,64 @@ export default function TablesHistoryPage() {
     }
   }, [selectedTable])
 
+  // Fetch new order counts for all tables at regular intervals
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchAllTableOrderCounts()
+
+      const interval = setInterval(() => {
+        fetchAllTableOrderCounts()
+      }, 10000)
+
+      return () => clearInterval(interval)
+    }
+  }, [status, tables])
+
   const fetchTables = async () => {
     try {
       const res = await fetch('/api/tables')
       const data = await res.json()
       setTables(data)
       setLoading(false)
+
+      // After fetching tables, get their order counts
+      if (data.length > 0) {
+        fetchAllTableOrderCounts()
+      }
     } catch (error) {
       setError('Eroare la încărcarea meselor')
       setLoading(false)
+    }
+  }
+
+  const fetchAllTableOrderCounts = async () => {
+    try {
+      const counts = {}
+
+      for (const table of tables) {
+        const res = await fetch(`/api/orders/table/${table._id}`)
+        if (res.ok) {
+          const data = await res.json()
+
+          // Count active or new orders for this table
+          let activeCount = 0
+          data.forEach((session) => {
+            if (session.status !== 'paid') {
+              session.orders.forEach((order) => {
+                if (order.status !== 'completed') {
+                  activeCount++
+                }
+              })
+            }
+          })
+
+          counts[table._id] = activeCount
+        }
+      }
+
+      setTableOrderCounts(counts)
+    } catch (error) {
+      console.error('Eroare la încărcarea numărului de comenzi:', error)
     }
   }
 
@@ -131,6 +181,23 @@ export default function TablesHistoryPage() {
       })
       setTableOrders(data)
       setLoading(false)
+
+      // Update the order count for this table
+      let activeCount = 0
+      data.forEach((session) => {
+        if (session.status !== 'paid') {
+          session.orders.forEach((order) => {
+            if (order.status !== 'completed') {
+              activeCount++
+            }
+          })
+        }
+      })
+
+      setTableOrderCounts((prev) => ({
+        ...prev,
+        [tableId]: activeCount,
+      }))
     } catch (error) {
       console.error('Eroare la încărcarea comenzilor mesei:', error)
       setError(`Eroare la încărcarea comenzilor mesei: ${error.message}`)
@@ -168,6 +235,8 @@ export default function TablesHistoryPage() {
       if (res.ok) {
         // Reîmprospătează comenzile pentru masa curentă
         await fetchTableOrders(selectedTable._id)
+        // Actualizează și contorizările pentru toate mesele
+        fetchAllTableOrderCounts()
       } else {
         const data = await res.json()
         setError(data.message)
@@ -190,6 +259,8 @@ export default function TablesHistoryPage() {
       if (res.ok) {
         // Reîmprospătează comenzile pentru masa curentă
         await fetchTableOrders(selectedTable._id)
+        // Actualizează și contorizările pentru toate mesele
+        fetchAllTableOrderCounts()
       } else {
         const data = await res.json()
         setError(data.message)
@@ -264,7 +335,7 @@ export default function TablesHistoryPage() {
               selectedTable?._id === table._id
                 ? 'ring-2 ring-indigo-500'
                 : 'hover:shadow-lg'
-            } border-2 border-[#35605a] rounded-lg shadow p-6`}
+            } border-2 border-[#35605a] rounded-lg shadow p-6 relative`}
           >
             <h3 className="text-lg font-medium text-[#31E981]">
               Masa {table.tableNumber}
@@ -272,6 +343,12 @@ export default function TablesHistoryPage() {
             <p className="text-sm text-white mt-1">
               Capacitate: {table.capacity} persoane
             </p>
+
+            {tableOrderCounts[table._id] > 0 && (
+              <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse">
+                {tableOrderCounts[table._id]}
+              </div>
+            )}
           </div>
         ))}
       </div>
